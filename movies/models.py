@@ -94,3 +94,17 @@ class Review(models.Model):
 
     class Meta:
         unique_together = ("movie", "owner")
+
+
+class Rating(models.Model):
+    rating_choices = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
+                      (6, 6), (7, 7), (8, 8), (9, 9), (10, 10)]
+    movie = models.ForeignKey(
+        Movie, related_name='ratings', on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        'users.CustomUser', related_name='ratings', on_delete=models.CASCADE
+    )
+    rating = models.PositiveSmallIntegerField(choices=rating_choices)
+
+    class Meta:
+        unique_together = ("movie", "owner")
