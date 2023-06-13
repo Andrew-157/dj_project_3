@@ -1,8 +1,9 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+from django.db import models
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView, View
 from taggit.models import Tag
 from movies.models import Movie, Director
 
@@ -18,7 +19,7 @@ class MoviesByGenreListView(ListView):
     context_object_name = 'movies'
 
     def get_queryset(self) -> QuerySet[Any]:
-        genre_slug = self.kwargs['genre_slug']
+        genre_slug = self.kwargs['slug']
         genre = Tag.objects.filter(slug=genre_slug).first()
         movies = Movie.objects.filter(genres=genre).\
             prefetch_related('genres').\
@@ -27,5 +28,13 @@ class MoviesByGenreListView(ListView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context['genre'] = self.kwargs['genre_slug']
+        context['genre'] = self.kwargs['slug']
         return context
+
+
+class MovieDetailView(DetailView):
+    queryset = Movie.objects.prefetch_related(
+        'genres', 'actors').select_related('director').all()
+    template_name = 'movies/movie_detail.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'

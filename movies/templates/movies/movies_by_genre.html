@@ -5,11 +5,12 @@
     <h2> {{ movies|length }} were found in genre "{{ genre }}"</h2>
     {% for movie in movies %}
     <div class="container py-5">
+        <a href="{% url 'movies:movie-detail' movie.slug %}">Find out more about this movie</a>
         <p><strong>"{{ movie.title }}"</strong> </p>
         <img src="{{ movie.poster.url }}" alt="Movie poster" style="width: 10%; float: right; margin-right: 10px;">
-        <p>Release date: <strong>{{ movie.release_date }}</strong></p>
-        <p>Country: <strong>{{ movie.get_country_display }}</strong></p>
-        <p>Directed by <a href="">{{ movie.director }}</a></p>
+        <p><strong>Release date:</strong> {{ movie.release_date }}</p>
+        <p><strong>Country:</strong> {{ movie.get_country_display }}</p>
+        <p><strong>Directed by</strong> <a href="">{{ movie.director }}</a></p>
         {% for genre in movie.genres.all %}
         <a href="{% url 'movies:genre-movies' genre.slug %}">{{genre}}</a><br>
         {% endfor %}

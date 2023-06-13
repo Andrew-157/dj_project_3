@@ -1,0 +1,26 @@
+{% extends "movies/header.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2><strong>"{{ movie.title }}"</strong></h2>
+    <img src="{{ movie.poster.url }}" alt="Movie poster" style="width: 10%; float: right; margin-right: 10px;">
+    <p>
+        <strong>Synopsis:</strong>
+        {{ movie.synopsis }}
+    </p>
+    <p><strong>Genres:</strong><br>
+        {% for genre in movie.genres.all %}
+        <a href="{% url 'movies:genre-movies' genre.slug %}">{{ genre }}</a><br>
+        {% endfor %}
+    </p>
+    <p><strong>Release date:</strong> {{ movie.release_date }}</p>
+    <p><strong>Country: </strong> {{ movie.get_country_display }}</p>
+    <p><strong>Directed by:</strong> <a href="">{{ movie.director }}</a></p>
+    <p>
+        <strong>Starring:</strong>
+        {% for actor in movie.actors.all %}
+        <a href="">{{ actor }}</a>,
+        {% endfor %}
+    </p>
+</div>
+{% endblock %}
