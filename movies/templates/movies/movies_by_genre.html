@@ -10,7 +10,9 @@
         <img src="{{ movie.poster.url }}" alt="Movie poster" style="width: 10%; float: right; margin-right: 10px;">
         <p><strong>Release date:</strong> {{ movie.release_date }}</p>
         <p><strong>Country:</strong> {{ movie.get_country_display }}</p>
-        <p><strong>Directed by</strong> <a href="">{{ movie.director }}</a></p>
+        <p><strong>Directed by</strong>
+            <a href="{% url 'movies:director-page' movie.director.slugged_name %}">{{movie.director }}</a>
+        </p>
         {% for genre in movie.genres.all %}
         <a href="{% url 'movies:genre-movies' genre.slug %}">{{genre}}</a><br>
         {% endfor %}

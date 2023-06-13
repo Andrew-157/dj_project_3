@@ -15,7 +15,9 @@
     </p>
     <p><strong>Release date:</strong> {{ movie.release_date }}</p>
     <p><strong>Country: </strong> {{ movie.get_country_display }}</p>
-    <p><strong>Directed by:</strong> <a href="">{{ movie.director }}</a></p>
+    <p><strong>Directed by:</strong>
+        <a href="{% url 'movies:director-page' movie.director.slugged_name %}">{{movie.director }}</a>
+    </p>
     <p>
         <strong>Starring:</strong>
         {% for actor in movie.actors.all %}

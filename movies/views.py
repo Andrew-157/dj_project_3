@@ -33,16 +33,32 @@ class MoviesByGenreListView(ListView):
 
 
 class MovieDetailView(DetailView):
+    model = Movie
     queryset = Movie.objects.prefetch_related(
         'genres', 'actors').select_related('director').all()
     template_name = 'movies/movie_detail.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
 
-    def get_object(self, queryset: QuerySet[Any] | None = ...):
+    def get_object(self):
         movie_slug = self.kwargs['slug']
         movie = Movie.objects.filter(slug=movie_slug).first()
         if not movie:
             self.template_name = 'movies/nonexistent.html'
             return None
-        return super().get_object(queryset)
+        return super().get_object()
+
+
+class DirectorPageView(View):
+    template_name = 'movies/director_page.html'
+
+    def get(self, request, *args, **kwargs):
+        director_slugged_name = self.kwargs['slug']
+        director = Director.objects.filter(
+            slugged_name=director_slugged_name).first()
+        if not director:
+            return render(request, 'movies/nonexistent.html')
+        movies = Movie.objects.\
+            select_related('director').\
+            filter(director=director).all().order_by('title')
+        return render(request, self.template_name, {'movies': movies, 'director': director})
