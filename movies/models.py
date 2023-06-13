@@ -24,6 +24,9 @@ class Director(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['name']
+
 
 class Actor(models.Model):
     name = models.CharField(max_length=200, unique=True)
@@ -34,6 +37,12 @@ class Actor(models.Model):
     def save(self, *args, **kwargs):
         self.slugged_name = slugify(self.name)
         super(Actor, self).save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        ordering = ['name']
 
 
 class Movie(models.Model):

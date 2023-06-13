@@ -48,6 +48,7 @@ class MovieAdmin(admin.ModelAdmin):
     readonly_fields = ['poster_tag']
     exclude = ['slug', 'actors']
     inlines = (ActorInline, )
+    autocomplete_fields = ['director']
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
         return super().get_queryset(request).\

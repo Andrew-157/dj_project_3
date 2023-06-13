@@ -155,3 +155,5 @@ MESSAGE_TAGS = {
     messages.WARNING: 'alert-warning',
     messages.ERROR: 'alert-danger',
 }
+
+TAGGIT_CASE_INSENSITIVE = True
