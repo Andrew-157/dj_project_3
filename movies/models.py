@@ -82,3 +82,15 @@ class Movie(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Review(models.Model):
+    movie = models.ForeignKey(
+        Movie, related_name='reviews', on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        'users.CustomUser', related_name='reviews', on_delete=models.CASCADE)
+    content = models.TextField()
+    published = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("movie", "owner")
