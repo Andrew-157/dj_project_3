@@ -7,7 +7,7 @@
     <div class="container py-5">
         <h2>Currently available {{ genres|length }} genres</h2>
         {% for genre in genres %}
-        <a href="">{{ genre }}</a> <br>
+        <a href="{% url 'movies:genre-movies' genre.slug %}">{{ genre }}</a> <br>
         {% endfor %}
     </div>
 </div>
