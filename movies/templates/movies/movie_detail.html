@@ -21,7 +21,7 @@
     <p>
         <strong>Starring:</strong>
         {% for actor in movie.actors.all %}
-        <a href="">{{ actor }}</a>,
+        <a href="{% url 'movies:actor-page' actor.slugged_name %}">{{ actor }}</a>,
         {% endfor %}
     </p>
 </div>

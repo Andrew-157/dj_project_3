@@ -1,0 +1,12 @@
+{% extends "movies/header.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2><strong>{{ actor }}</strong> is starring in {{ movies|length}} movies from our database</h2>
+    <img src="{{ actor.photo.url }}" alt="Director photo" style="width: 10%; float: right; margin-right: 10px;">
+    {% for movie in movies %}
+    <a href="{% url 'movies:movie-detail' movie.slug %}">{{ movie.title}}</a><br>
+    {% endfor %}
+</div>
+
+{% endblock %}

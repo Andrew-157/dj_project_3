@@ -5,7 +5,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, View
 from taggit.models import Tag
-from movies.models import Movie, Director
+from movies.models import Movie, Director, Actor
 
 
 class IndexView(ListView):
@@ -62,3 +62,19 @@ class DirectorPageView(View):
             select_related('director').\
             filter(director=director).all().order_by('title')
         return render(request, self.template_name, {'movies': movies, 'director': director})
+
+
+class ActorPageView(View):
+    template_name = 'movies/actor_page.html'
+
+    def get(self, request, *args, **kwargs):
+        actor_slugged_name = self.kwargs['slug']
+        actor = Actor.objects.filter(
+            slugged_name=actor_slugged_name
+        ).first()
+        if not actor:
+            return render(request, 'movies/nonexistent.html')
+        movies = Movie.objects.\
+            prefetch_related('actors').\
+            filter(actors=actor).all().order_by('title')
+        return render(request, self.template_name, {'movies': movies, 'actor': actor})
