@@ -38,3 +38,11 @@ class MovieDetailView(DetailView):
     template_name = 'movies/movie_detail.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+
+    def get_object(self, queryset: QuerySet[Any] | None = ...):
+        movie_slug = self.kwargs['slug']
+        movie = Movie.objects.filter(slug=movie_slug).first()
+        if not movie:
+            self.template_name = 'movies/nonexistent.html'
+            return None
+        return super().get_object(queryset)
