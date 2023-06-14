@@ -1,11 +1,17 @@
 from typing import Any, Dict, Optional
 from django.db import models
+from django.db.models.query_utils import Q
 from django.db.models.query import QuerySet
-from django.http import HttpRequest, HttpResponse
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, View
 from taggit.models import Tag
-from movies.models import Movie, Director, Actor
+from movies.models import Movie, Director, Actor, Rating
+from movies.forms import RateMovieForm, ReviewMovieForm
 
 
 class IndexView(ListView):
@@ -48,6 +54,23 @@ class MovieDetailView(DetailView):
             return None
         return super().get_object()
 
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        current_user = self.request.user
+        context = super().get_context_data(**kwargs)
+        if current_user.is_authenticated:
+            rating = Rating.objects.select_related('owner', 'movie').\
+                filter(
+                Q(movie__slug=self.kwargs['slug']) &
+                Q(owner=current_user)
+            ).first()
+            if rating:
+                context['rating'] = rating
+            else:
+                context['rating'] = None
+        else:
+            context['rating'] = None
+        return context
+
 
 class DirectorPageView(View):
     template_name = 'movies/director_page.html'
@@ -78,3 +101,137 @@ class ActorPageView(View):
             prefetch_related('actors').\
             filter(actors=actor).all().order_by('title')
         return render(request, self.template_name, {'movies': movies, 'actor': actor})
+
+
+class RateMovieView(View):
+    form_class = RateMovieForm
+    template_name = 'movies/rate_movie.html'
+    info_message = 'Please, authenticate to rate a movie'
+    warning_message = 'You cannot have more than one rating per movie'
+    redirect_to = 'movies:movie-detail'
+    success_message = 'You successfully rated this movie'
+
+    def get_movie(self, pk):
+        return Movie.objects.filter(id=pk).first()
+
+    def rating_exists(self, movie_pk, user):
+        return Rating.objects.select_related('owner', 'movie').\
+            filter(
+            Q(owner=user) &
+            Q(movie__id=movie_pk)
+        ).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = self.request.user
+        movie_pk = self.kwargs['pk']
+        movie = self.get_movie(movie_pk)
+        if not movie:
+            return render(request, 'movies/nonexistent.html')
+        if not current_user.is_authenticated:
+            messages.info(
+                request, self.info_message
+            )
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(movie.slug, )))
+        if self.rating_exists(movie.id, current_user):
+            messages.warning(request, self.warning_message)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(movie.slug, )))
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form,
+                                                    'movie': movie})
+
+    def post(self, request, *args, **kwargs):
+        current_user = self.request.user
+        movie = self.get_movie(self.kwargs['pk'])
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            form.instance.movie = movie
+            form.instance.owner = current_user
+            form.save()
+            messages.success(request, self.success_message)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(movie.slug, )))
+        return render(request, self.template_name, {'form': form,
+                                                    'movie': movie})
+
+
+class UpdateRatingView(View):
+    template_name = 'movies/update_rating.html'
+    form_class = RateMovieForm
+    redirect_to = 'movies:movie-detail'
+    warning_message = 'You have no rating on this movie to update'
+    success_message = 'You successfully updated your rating of the movie'
+
+    def get_movie(self, pk):
+        return Movie.objects.filter(id=pk).first()
+
+    def get_rating(self, movie_pk, user):
+        return Rating.objects.select_related('movie', 'owner').\
+            filter(
+            Q(owner=user) &
+            Q(movie__id=movie_pk)
+        ).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = self.request.user
+        movie = self.get_movie(self.kwargs['pk'])
+        if not movie:
+            return render(request, 'movies/nonexistent.html')
+        rating = self.get_rating(movie.id, current_user)
+        if not rating:
+            messages.warning(request, self.warning_message)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(movie.slug, )))
+        form = self.form_class(instance=rating)
+        return render(request, self.template_name, {'form': form,
+                                                    'movie': movie})
+
+    def post(self, request, *args, **kwargs):
+        current_user = self.request.user
+        movie = self.get_movie(self.kwargs['pk'])
+        rating = self.get_rating(movie.id, current_user)
+        form = self.form_class(request.POST, instance=rating)
+        if form.is_valid():
+            form.save()
+            messages.success(request, self.success_message)
+            return HttpResponseRedirect(reverse(
+                self.redirect_to, args=(movie.slug, )
+            ))
+        return render(request, self.template_name, {'form': form,
+                                                    'movie': movie})
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class DeleteRatingView(View):
+    redirect_to = 'movies:movie-detail'
+    warning_message = 'You have no rating on the movie to delete.'
+    success_message = 'You successfully deleted your rating on the movie.'
+
+    def get_movie(self, pk):
+        return Movie.objects.filter(id=pk).first()
+
+    def get_rating(self, movie_pk, user):
+        return Rating.objects.select_related('movie', 'owner').\
+            filter(
+            Q(owner=user) &
+            Q(movie__id=movie_pk)
+        ).first()
+
+    def get(self, request, *args, **kwargs):
+        current_user = self.request.user
+        movie = self.get_movie(self.kwargs['pk'])
+        if not movie:
+            return render(request, 'movies/nonexistent.html')
+        rating = self.get_rating(movie.id, current_user)
+        if not rating:
+            messages.warning(request, self.warning_message)
+            return HttpResponseRedirect(reverse(
+                self.redirect_to, args=(movie.slug, )
+            ))
+        rating.delete()
+        messages.success(request, self.success_message)
+        return HttpResponseRedirect(reverse(self.redirect_to, args=(movie.slug, )))
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)

@@ -10,5 +10,10 @@ urlpatterns = [
     path('movies/<slug:slug>/', views.MovieDetailView.as_view(), name='movie-detail'),
     path('directors/<str:slug>/',
          views.DirectorPageView.as_view(), name='director-page'),
-    path('actors/<str:slug>/', views.ActorPageView.as_view(), name='actor-page')
+    path('actors/<str:slug>/', views.ActorPageView.as_view(), name='actor-page'),
+    path('movies/<int:pk>/rate/', views.RateMovieView.as_view(), name='rate-movie'),
+    path('movies/<int:pk>/rate/update/',
+         views.UpdateRatingView.as_view(), name='rate-movie-update'),
+    path('movies/<int:pk>/rate/delete/',
+         views.DeleteRatingView.as_view(), name='rate-movie-delete')
 ]

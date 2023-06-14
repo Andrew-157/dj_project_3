@@ -91,6 +91,7 @@ class Review(models.Model):
         'users.CustomUser', related_name='reviews', on_delete=models.CASCADE)
     content = models.TextField()
     published = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ("movie", "owner")
