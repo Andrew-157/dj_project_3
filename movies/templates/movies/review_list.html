@@ -1,0 +1,45 @@
+{% extends "movies/header.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2>Number of reviews published on Cookie for movie "{{ movie.title }}":
+        <strong>{{ reviews_ratings|length}}</strong>
+    </h2>
+    <div>
+        {% if user_has_review %}
+        <a href="">Check out the review you left on this movie</a>
+        {% else %}
+        <a href="{% url 'movies:review-movie' movie.id %}">Publish your review on this movie</a>
+        {% endif %}
+    </div>
+    <div>
+        <div class="container py-5">
+            {% for rr in reviews_ratings %}
+            {% with review=rr.0 rating=rr.1%}
+            {% if rating %}
+            <p><strong>{{ rating.owner }}</strong> rated the movie as <strong>{{ rating.rating }}/10</strong></p>
+            {% else %}
+            <p> <strong>{{ review.owner }}</strong> has not rated the movie</p>
+            {% endif %}
+            <img src="{{ review.owner.image.url}}" alt="User's image"
+                style="width: 5%; float: left; margin-right: 10px;"></a>
+            <p><strong>{{ review.owner }}'s</strong> review of the movie "{{ movie.title }}":
+            <div>
+                <p>{{review.content }}</p>
+            </div>
+            {% if review.published == review.updated %}
+            <strong>Was published on {{ review.published }}.</strong>
+            {% else %}
+            <strong>
+                Was published on {{ review.published }}.
+                Was updated on {{ review.updated }}
+            </strong>
+            {% endif %}
+            </p>
+            {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

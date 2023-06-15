@@ -96,6 +96,9 @@ class Review(models.Model):
     class Meta:
         unique_together = ("movie", "owner")
 
+    def __str__(self):
+        return self.movie.title + ' ' + self.owner.username
+
 
 class Rating(models.Model):
     rating_choices = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
@@ -109,3 +112,6 @@ class Rating(models.Model):
 
     class Meta:
         unique_together = ("movie", "owner")
+
+    def __str__(self):
+        return self.movie.title + ' ' + self.owner.username

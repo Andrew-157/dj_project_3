@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, View
 from taggit.models import Tag
-from movies.models import Movie, Director, Actor, Rating
+from movies.models import Movie, Director, Actor, Rating, Review
 from movies.forms import RateMovieForm, ReviewMovieForm
 
 
@@ -235,3 +235,91 @@ class DeleteRatingView(View):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+class ReviewListView(View):
+    template_name = 'movies/review_list.html'
+
+    def get_movie(self, pk):
+        return Movie.objects.filter(id=pk).first()
+
+    def get(self, request, *args, **kwargs):
+        movie = self.get_movie(self.kwargs['pk'])
+        if not movie:
+            return render(request, 'movies/nonexistent.html')
+        reviews_ratings = []
+        reviews = list(Review.objects.select_related('owner', 'movie').
+                       filter(movie__id=movie.id).all().order_by('-published'))
+        reviews_owner_ids = [review.owner.id for review in reviews]
+        ratings = list(Rating.objects.select_related('owner', 'movie').
+                       filter(
+            Q(movie__id=movie.id) &
+            Q(owner__id__in=reviews_owner_ids)
+        ).all())
+        ratings_owner_ids = [rating.owner.id for rating in ratings]
+        for review in reviews:
+            if review.owner.id in ratings_owner_ids:
+                rating_index = ratings_owner_ids.index(review.owner.id)
+                rating = ratings[rating_index]
+                reviews_ratings.append([review, rating])
+            else:
+                reviews_ratings.append([review, None])
+        if self.request.user.is_authenticated and (self.request.user.id in reviews_owner_ids):
+            user_has_review = True
+        else:
+            user_has_review = False
+        print(reviews_ratings)
+        return render(request, self.template_name, {'reviews_ratings': reviews_ratings,
+                                                    'user_has_review': user_has_review,
+                                                    'movie': movie})
+
+
+class ReviewMovieView(View):
+    template_name = 'movies/review_movie.html'
+    redirect_to = 'movies:review-list'
+    success_message = 'You successfully published your review on the movie'
+    warning_message = 'You can have only one review per movie'
+    info_message = 'Please, authenticate to publish your review on the movie'
+    form_class = ReviewMovieForm
+
+    def get_movie(self, pk):
+        return Movie.objects.filter(id=pk).first()
+
+    def review_exists(self, movie_pk, user):
+        return Review.objects.select_related('owner', 'movie').\
+            filter(
+            Q(owner=user) &
+            Q(movie__id=movie_pk)
+        ).first()
+
+    def get(self, request, *args, **kwargs):
+        movie = self.get_movie(self.kwargs['pk'])
+        if not movie:
+            return render(request, 'movies/nonexistent.html')
+        current_user = self.request.user
+        if not current_user.is_authenticated:
+            messages.info(request, self.info_message)
+            return HttpResponseRedirect(reverse(
+                self.redirect_to, args=(movie.id, )
+            ))
+        if self.review_exists(movie.id, current_user):
+            messages.warning(request, self.warning_message)
+            return HttpResponseRedirect(reverse(
+                self.redirect_to, args=(movie.id, )
+            ))
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form,
+                                                    'movie': movie})
+
+    def post(self, request, *args, **kwargs):
+        current_user = self.request.user
+        movie = self.get_movie(self.kwargs['pk'])
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            form.instance.movie = movie
+            form.instance.owner = current_user
+            form.save()
+            messages.success(request, self.success_message)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(movie.id, )))
+        return render(request, self.template_name, {'form': form,
+                                                    'movie': movie})

@@ -11,8 +11,11 @@
         <a href="{% url 'movies:rate-movie-delete' movie.id %}">Delete your rating</a>
     </div>
     {% else %}
-    <a href="{% url 'movies:rate-movie' movie.id %}">Rate this movie</a>
+    <div>
+        <a href="{% url 'movies:rate-movie' movie.id %}">Rate this movie</a>
+    </div>
     {% endif %}
+    <a href="{% url 'movies:review-list' movie.id %}">Check out reviews of this movie</a>
     <p>
         <strong>Synopsis:</strong>
         {{ movie.synopsis }}
