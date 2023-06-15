@@ -4,6 +4,11 @@
 <div class="container py-5">
     <h2><strong>"{{ movie.title }}"</strong></h2>
     <img src="{{ movie.poster.url }}" alt="Movie poster" style="width: 10%; float: right; margin-right: 10px;">
+    {% if movie.avg_rating %}
+    <p>Rating by Cookie users: <strong>{{ movie.avg_rating }}/10</strong></p>
+    {% else %}
+    <p>Was not rated by anyone yet</p>
+    {% endif %}
     {% if rating %}
     <div>
         <p>You rated this movie as <strong>{{ rating.rating }} out of 10</strong></p>

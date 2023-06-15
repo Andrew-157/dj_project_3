@@ -1,5 +1,6 @@
 from typing import Any, Dict, Optional
 from django.db import models
+from django.db.models import Avg
 from django.db.models.query_utils import Q
 from django.db.models.query import QuerySet
 from django.contrib import messages
@@ -29,7 +30,11 @@ class MoviesByGenreListView(ListView):
         genre = Tag.objects.filter(slug=genre_slug).first()
         movies = Movie.objects.filter(genres=genre).\
             prefetch_related('genres').\
-            select_related('director').all()
+            select_related('director').all().annotate(
+            avg_rating=Avg('ratings__rating')
+        )
+        # for movie in movies:
+        #     print(movie.ratings.all())
         return movies
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
@@ -41,7 +46,8 @@ class MoviesByGenreListView(ListView):
 class MovieDetailView(DetailView):
     model = Movie
     queryset = Movie.objects.prefetch_related(
-        'genres', 'actors').select_related('director').all()
+        'genres', 'actors').select_related('director').\
+            all().annotate(avg_rating=Avg('ratings__rating'))
     template_name = 'movies/movie_detail.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
