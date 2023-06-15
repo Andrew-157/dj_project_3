@@ -3,11 +3,12 @@
 {% block content %}
 <div class="container py-5">
     <h2>Number of reviews published on Cookie for movie "{{ movie.title }}":
-        <strong>{{ reviews_ratings|length}}</strong>
+        <strong>{{ reviews_ratings|length}}</strong> <br>
+        <a href="{% url 'movies:movie-detail' movie.slug %}">Movie's page</a>
     </h2>
     <div>
         {% if user_has_review %}
-        <a href="">Check out the review you left on this movie</a>
+        <a href="{% url 'movies:review-detail' movie.id %}">Check out the review you left on this movie</a>
         {% else %}
         <a href="{% url 'movies:review-movie' movie.id %}">Publish your review on this movie</a>
         {% endif %}

@@ -268,7 +268,6 @@ class ReviewListView(View):
             user_has_review = True
         else:
             user_has_review = False
-        print(reviews_ratings)
         return render(request, self.template_name, {'reviews_ratings': reviews_ratings,
                                                     'user_has_review': user_has_review,
                                                     'movie': movie})
@@ -323,3 +322,100 @@ class ReviewMovieView(View):
             return HttpResponseRedirect(reverse(self.redirect_to, args=(movie.id, )))
         return render(request, self.template_name, {'form': form,
                                                     'movie': movie})
+
+
+class ReviewDetailView(View):
+    template_name = 'movies/review_detail.html'
+    form_class = ReviewMovieForm
+    success_message = 'You successfully updated your review of the movie.'
+    warning_message = 'You have not reviewed the movie.'
+    redirect_to = 'movies:review-list'
+
+    def get_movie(self, pk):
+        return Movie.objects.filter(id=pk).first()
+
+    def get_rating(self, movie_pk, user):
+        return Rating.objects.select_related('movie', 'owner').\
+            filter(
+            Q(owner=user) &
+            Q(movie__id=movie_pk)
+        ).first()
+
+    def get_review(self, movie_pk, user):
+        return Review.objects.select_related('movie', 'owner').\
+            filter(
+            Q(owner=user) &
+            Q(movie__id=movie_pk)
+        ).first()
+
+    def get(self, request, *args, **kwargs):
+        movie = self.get_movie(self.kwargs['pk'])
+        if not movie:
+            return render(request, 'movies/nonexistent.html')
+        current_user = self.request.user
+        review = self.get_review(movie.id, current_user)
+        if not review:
+            messages.warning(request, self.warning_message)
+            return HttpResponseRedirect(reverse(
+                self.redirect_to, args=(movie.id, )
+            ))
+        rating = self.get_rating(movie.id, current_user)
+        form = self.form_class(instance=review)
+        return render(request, self.template_name, {'movie': movie,
+                                                    'review': review,
+                                                    'rating': rating,
+                                                    'form': form})
+
+    def post(self, request, *args, **kwargs):
+        movie = self.get_movie(self.kwargs['pk'])
+        current_user = request.user
+        review = self.get_review(movie.id, current_user)
+        rating = self.get_rating(movie.id, current_user)
+        form = self.form_class(request.POST, instance=review)
+        if form.is_valid():
+            form.save()
+            messages.success(request, self.success_message)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(movie.id,)))
+        return render(request, self.template_name, {'movie': movie,
+                                                    'review': review,
+                                                    'rating': rating,
+                                                    'form': form})
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+class DeleteReviewView(View):
+    redirect_to = 'movies:review-list'
+    success_message = 'You successfully deleted your review of the movie'
+    warning_message = 'You have no review of the movie to delete'
+
+    def get_movie(self, pk):
+        return Movie.objects.filter(id=pk).first()
+
+    def get_review(self, movie_pk, user):
+        return Review.objects.select_related('movie', 'owner').\
+            filter(
+            Q(owner=user) &
+            Q(movie__id=movie_pk)
+        ).first()
+
+    def get(self, request, *args, **kwargs):
+        movie = self.get_movie(self.kwargs['pk'])
+        if not movie:
+            return render(request, 'movies/nonexistent.html')
+        current_user = self.request.user
+        review = self.get_review(movie.id, current_user)
+        if not review:
+            messages.warning(request, self.warning_message)
+            return HttpResponseRedirect(reverse(
+                self.redirect_to, args=(movie.id, )
+            ))
+        review.delete()
+        messages.success(request, self.success_message)
+        return HttpResponseRedirect(reverse(self.redirect_to, args=(movie.id, )))
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
