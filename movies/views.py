@@ -47,7 +47,7 @@ class MovieDetailView(DetailView):
     model = Movie
     queryset = Movie.objects.prefetch_related(
         'genres', 'actors').select_related('director').\
-            all().annotate(avg_rating=Avg('ratings__rating'))
+        all().annotate(avg_rating=Avg('ratings__rating'))
     template_name = 'movies/movie_detail.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
@@ -425,3 +425,33 @@ class DeleteReviewView(View):
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+class SearchResultsView(View):
+    template_name = 'movies/search_results.html'
+
+    def get(self, request, *args, **kwargs):
+        results = {
+            'actors': [],
+            'directors': [],
+            'movies': []
+        }
+        query = self.request.GET.get('q')
+        if query:
+            actors = Actor.objects.filter(
+                Q(name__icontains=query)
+            ).order_by('name').all()
+            results['actors'] = actors
+            ####################################
+            directors = Director.objects.filter(
+                Q(name__icontains=query)
+            ).order_by('name').all()
+            results['directors'] = directors
+            #####################################
+            movies = Movie.objects.filter(
+                Q(title__icontains=query)
+            ).all().order_by('title')
+            results['movies'] = movies
+            return render(request, self.template_name, {'results': results,
+                                                        'query': query})
+        return render(request, 'movies/empty_search.html')

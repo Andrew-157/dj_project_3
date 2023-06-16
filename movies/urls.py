@@ -23,5 +23,6 @@ urlpatterns = [
     path('movies/<int:pk>/review/detail/',
          views.ReviewDetailView.as_view(), name='review-detail'),
     path('movies/<int:pk>/reviews/delete/',
-         views.DeleteReviewView.as_view(), name='review-delete')
+         views.DeleteReviewView.as_view(), name='review-delete'),
+    path('search/', views.SearchResultsView.as_view(), name='search')
 ]
