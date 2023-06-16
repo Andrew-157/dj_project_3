@@ -90,7 +90,8 @@ class DirectorPageView(View):
         movies = Movie.objects.\
             select_related('director').\
             filter(director=director).all().order_by('title')
-        return render(request, self.template_name, {'movies': movies, 'director': director})
+        return render(request, self.template_name, {'movies': movies,
+                                                    'director': director})
 
 
 class ActorPageView(View):
@@ -106,7 +107,8 @@ class ActorPageView(View):
         movies = Movie.objects.\
             prefetch_related('actors').\
             filter(actors=actor).all().order_by('title')
-        return render(request, self.template_name, {'movies': movies, 'actor': actor})
+        return render(request, self.template_name, {'movies': movies,
+                                                    'actor': actor})
 
 
 class RateMovieView(View):

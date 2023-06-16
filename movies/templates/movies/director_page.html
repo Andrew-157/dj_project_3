@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container py-5">
-    <h2><strong>{{ director }}</strong> has {{ movies|length}} movies in our database</h2>
+    <h2><strong>{{ director }}</strong> has {{ movies|length}} movies in our database:</h2>
     <img src="{{ director.photo.url }}" alt="Director photo" style="width: 10%; float: right; margin-right: 10px;">
     {% for movie in movies %}
     <a href="{% url 'movies:movie-detail' movie.slug %}">{{ movie.title}}</a><br>
