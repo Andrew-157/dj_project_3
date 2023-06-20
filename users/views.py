@@ -1,11 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm
 from django.utils.decorators import method_decorator
 from django.shortcuts import render, redirect
 from django.views import View
-from users.forms import UserCreationForm, UserChangeForm
+from users.forms import UserCreationForm, UserChangeForm, EmailLoginForm
 
 
 class RegisterUserView(View):
@@ -20,26 +19,46 @@ class RegisterUserView(View):
         form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, 'You were successfully registered')
             return redirect('movies:index')
         return render(request, self.template_name, {'form': form})
 
 
+# class LoginUserView(View):
+#     form_class = AuthenticationForm
+#     template_name = 'users/login.html'
+
+#     def get(self, request):
+#         form = self.form_class()
+#         return render(request, self.template_name, {'form': form})
+
+#     def post(self, request):
+#         form = self.form_class(request, request.POST)
+#         if form.is_valid():
+#             username = form.cleaned_data['username']
+#             password = form.cleaned_data['password']
+#             user = authenticate(username=username, password=password)
+#             if user:
+#                 login(request, user)
+#                 messages.success(request, 'Welcome back to Cookie')
+#                 return redirect('movies:index')
+#         return render(request, self.template_name, {'form': form})
+
 class LoginUserView(View):
-    form_class = AuthenticationForm
+    form_class = EmailLoginForm
     template_name = 'users/login.html'
 
     def get(self, request):
         form = self.form_class()
         return render(request, self.template_name, {'form': form})
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         form = self.form_class(request, request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            user = authenticate(username=username, password=password)
+            user = authenticate(username=email, password=password)
             if user:
                 login(request, user)
                 messages.success(request, 'Welcome back to Cookie')
@@ -68,7 +87,7 @@ class ChangeUserView(View):
             request.POST, request.FILES, instance=current_user)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(
                 request, 'You successfully changed your credentials')
             return redirect('movies:index')

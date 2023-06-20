@@ -157,3 +157,8 @@ MESSAGE_TAGS = {
 }
 
 TAGGIT_CASE_INSENSITIVE = True
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'users.authentication.EmailAuthBackend'
+]
