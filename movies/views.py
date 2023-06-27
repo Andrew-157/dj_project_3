@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 from django.db import models
-from django.db.models import Avg
+from django.db.models import Avg, Count
 from django.db.models.query_utils import Q
 from django.db.models.query import QuerySet
 from django.contrib import messages
@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, View
-from taggit.models import Tag
+from taggit.models import Tag, TaggedItem
 from movies.models import Movie, Director, Actor, Rating, Review
 from movies.forms import RateMovieForm, ReviewMovieForm
 
@@ -18,7 +18,11 @@ from movies.forms import RateMovieForm, ReviewMovieForm
 class IndexView(ListView):
     template_name = 'movies/index.html'
     context_object_name = 'genres'
-    queryset = Tag.objects.order_by('name').all()
+    tagged_items_ids = [t.tag_id for t in TaggedItem.objects.all()]
+    queryset = Tag.objects.\
+        filter(id__in=tagged_items_ids)\
+        .order_by('name').all().annotate(
+            number_of_movies=Count('taggit_taggeditem_items'))
 
 
 class MoviesByGenreListView(ListView):

@@ -2,13 +2,18 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1>Welcome to Cookie</h1>
-    <h2>Check out the genres of movies available</h2>
-    <div class="container py-5">
-        <h2>Currently available {{ genres|length }} genres</h2>
-        {% for genre in genres %}
-        <a href="{% url 'movies:genre-movies' genre.slug %}">{{ genre }}</a> <br>
-        {% endfor %}
-    </div>
+    <h1>Check out the genres of movies available on Cookie</h1>
+    {% for genre in genres %}
+    <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{% url 'movies:genre-movies' genre.slug %}">{{ genre }}</a>
+            {% if genre.number_of_movies == 1 %}
+            <span class="badge badge-primary badge-pill">1 movie in genre</span>
+            {% else %}
+            <span class="badge badge-primary badge-pill">{{ genre.number_of_movies }} movies in genre</span>
+            {% endif %}
+        </li>
+    </ul>
+    {% endfor %}
 </div>
 {% endblock %}

@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container py-5">
-    <h2> {{ movies|length }} were found in genre "{{ genre }}"</h2>
+    <h2> Number of movies found in genre "{{ genre }}": {{ movies|length }}</h2>
     {% for movie in movies %}
     <div class="container py-5">
         <a href="{% url 'movies:movie-detail' movie.slug %}">Find out more about this movie</a>
