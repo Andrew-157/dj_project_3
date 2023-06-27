@@ -2,11 +2,43 @@
 
 {% block content %}
 <div class="container py-5">
-    <h2><strong>{{ actor }}</strong> is starring in {{ movies|length}} movies from our database:</h2>
-    <img src="{{ actor.photo.url }}" alt="Director photo" style="width: 10%; float: right; margin-right: 10px;">
-    {% for movie in movies %}
-    <a href="{% url 'movies:movie-detail' movie.slug %}">{{ movie.title}}</a><br>
-    {% endfor %}
+    <div class="jumbotron" style="height: 350px;">
+        <h1 class="font-italic">{{ actor }}</h1>
+        <img src="{{ actor.photo.url }}" alt="Director photo" style="float: right; width: 10%;">
+        <h2>Number of movies the actor is starring in: <mark>{{ movies|length }}</mark></h2>
+    </div>
+    <div class="container py-5">
+        <div class="card-columns">
+            {% for movie in movies %}
+            <div class="card" style="width: 300px;">
+                <img class="card-img-top" src="{{ movie.poster.url }}" alt="Movie poster">
+                <div class="card-body">
+                    <h4 class="font-italic">"{{ movie.title }}"</h4>
+                    {% if movie.avg_rating %}
+                    <p class="card-text"><strong>Rating by Cookie users: {{ movie.avg_rating }}/10</strong></p>
+                    {% else %}
+                    <p class="text-info">Was not rated by anyone yet</p>
+                    {% endif %}
+                    <p class="card-text"><strong>Directed by</strong>
+                        <a href="{% url 'movies:director-page' movie.director.slugged_name %}">{{movie.director }}</a>
+                    </p>
+                    <p class="card-text">
+                        <strong>Genres:</strong>
+                        {% for genre in movie.genres.all %}
+                        <a href="{% url 'movies:genre-movies' genre.slug %}">
+                            <span class="badge badge-light">{{ genre }}</span>
+                        </a>
+                        {% endfor %}
+                    </p>
+                    <div class="">
+                        <a href="{% url 'movies:movie-detail' movie.slug %}" class="btn btn-primary">
+                            See more</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
 {% endblock %}
