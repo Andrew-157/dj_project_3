@@ -6,7 +6,7 @@
         <h1 class="font-italic">"{{ movie.title }}"</h1>
         <img src="{{ movie.poster.url }}" alt="Movie poster" style="width: 15%; float: right;">
         {% if movie.avg_rating %}
-        <h2>Rating by Cookie users: {{ movie.avg_rating }}/10</h2>
+        <h2>Rating by Cookie users: <mark>{{ movie.avg_rating }}/10</mark></h2>
         <p class="text-info">Total number of ratings: {{ number_of_ratings }}</p>
         {% else %}
         <h2 class="text-info">The movie was not rated by anyone yet</h2>
@@ -38,7 +38,7 @@
     </div>
     <div class="container p-3 my-3 border">
         {% if rating %}
-        <p>Your rating of the movie: {{ rating.rating }}/10</p>
+        <p class="font-weight-bold">Your rating of the movie: <mark>{{ rating.rating }}/10</mark></p>
         <div class="btn-group">
             <a href="{% url 'movies:rate-movie-update' movie.id %}" class="btn btn-primary">
                 Update your rating

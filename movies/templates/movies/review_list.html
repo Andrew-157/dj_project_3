@@ -2,44 +2,46 @@
 
 {% block content %}
 <div class="container py-5">
-    <h2>Number of reviews published on Cookie for movie "{{ movie.title }}":
-        <strong>{{ reviews_ratings|length}}</strong> <br>
-        <a href="{% url 'movies:movie-detail' movie.slug %}">Movie's page</a>
-    </h2>
-    <div>
+    <div class="container py-5">
+        <h2>Number of reviews published on Cookie for movie
+            <a href="{% url 'movies:movie-detail' movie.slug %}" class="font-italic">"{{ movie.title }}"</a>:
+            <mark>{{reviews_ratings|length}}</mark>
+        </h2>
         {% if user_has_review %}
         <a href="{% url 'movies:review-detail' movie.id %}">Check out the review you left on this movie</a>
         {% else %}
-        <a href="{% url 'movies:review-movie' movie.id %}">Publish your review on this movie</a>
+        <a href="{% url 'movies:review-movie' movie.id %}" class="btn btn-primary">Publish your review on this
+            movie</a>
         {% endif %}
     </div>
-    <div>
-        <div class="container py-5">
-            {% for rr in reviews_ratings %}
-            {% with review=rr.0 rating=rr.1%}
-            {% if rating %}
-            <p><strong>{{ rating.owner }}</strong> rated the movie as <strong>{{ rating.rating }}/10</strong></p>
-            {% else %}
-            <p> <strong>{{ review.owner }}</strong> has not rated the movie</p>
-            {% endif %}
+    <div class="container py-5">
+        {% for rr in reviews_ratings %}
+        {% with review=rr.0 rating=rr.1%}
+        <div class="container p-3 my-3 border">
             <img src="{{ review.owner.image.url}}" alt="User's image"
-                style="width: 5%; float: left; margin-right: 10px;"></a>
-            <p><strong>{{ review.owner }}'s</strong> review of the movie "{{ movie.title }}":
-            <div>
-                <p>{{review.content }}</p>
+                style="width: 5%; float: left; margin-right: 10px;" class="rounded-circle">
+            {% if rating %}
+            <h3>{{ rating.owner }} rated the movie as: <mark>{{ rating.rating }}/10</mark></h3>
+            {% else %}
+            <h3>{{ review.owner }} has not rated the movie yet</h3>
+            {% endif %}
+            <div class="container py-5">
+                <p class="font-weight-bold">Review:</p>
+                <p class="font-weight-bolder">{{ review.content }}</p>
             </div>
             {% if review.published == review.updated %}
-            <strong>Was published on {{ review.published }}.</strong>
-            {% else %}
-            <strong>
-                Was published on {{ review.published }}.
-                Was updated on {{ review.updated }}
-            </strong>
-            {% endif %}
+            <p class="text-info">
+                Was published on {{ review.published.date }}.
             </p>
-            {% endwith %}
-            {% endfor %}
+            {% else %}
+            <p class="text-info">
+                Was published on {{ review.published.date }}
+            </p>
+            <p class="text-info">Was updated on {{ review.updated.date }}</p>
+            {% endif %}
         </div>
+        {% endwith %}
+        {% endfor %}
     </div>
 </div>
 
