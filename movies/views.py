@@ -150,6 +150,16 @@ class RateMovieView(View):
     def post(self, request, *args, **kwargs):
         current_user = self.request.user
         movie = self.get_movie(self.kwargs['pk'])
+        if not movie:
+            return render(request, 'movies/nonexistent.html')
+        if not current_user.is_authenticated:
+            messages.info(
+                request, self.info_message
+            )
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(movie.slug, )))
+        if self.rating_exists(movie.id, current_user):
+            messages.warning(request, self.warning_message)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(movie.slug, )))
         form = self.form_class(request.POST)
         if form.is_valid():
             form.instance.movie = movie
@@ -194,7 +204,12 @@ class UpdateRatingView(View):
     def post(self, request, *args, **kwargs):
         current_user = self.request.user
         movie = self.get_movie(self.kwargs['pk'])
+        if not movie:
+            return render(request, 'movies/nonexistent.html')
         rating = self.get_rating(movie.id, current_user)
+        if not rating:
+            messages.warning(request, self.warning_message)
+            return HttpResponseRedirect(reverse(self.redirect_to, args=(movie.slug, )))
         form = self.form_class(request.POST, instance=rating)
         if form.is_valid():
             form.save()
@@ -226,6 +241,9 @@ class DeleteRatingView(View):
         ).first()
 
     def get(self, request, *args, **kwargs):
+        return render(request, 'movies/not_allowed.html')
+
+    def post(self, request, *args, **kwargs):
         current_user = self.request.user
         movie = self.get_movie(self.kwargs['pk'])
         if not movie:
@@ -321,6 +339,18 @@ class ReviewMovieView(View):
     def post(self, request, *args, **kwargs):
         current_user = self.request.user
         movie = self.get_movie(self.kwargs['pk'])
+        if not movie:
+            return render(request, 'movies/nonexistent.html')
+        if not current_user.is_authenticated:
+            messages.info(request, self.info_message)
+            return HttpResponseRedirect(reverse(
+                self.redirect_to, args=(movie.id, )
+            ))
+        if self.review_exists(movie.id, current_user):
+            messages.warning(request, self.warning_message)
+            return HttpResponseRedirect(reverse(
+                self.redirect_to, args=(movie.id, )
+            ))
         form = self.form_class(request.POST)
         if form.is_valid():
             form.instance.movie = movie
@@ -376,8 +406,15 @@ class ReviewDetailView(View):
 
     def post(self, request, *args, **kwargs):
         movie = self.get_movie(self.kwargs['pk'])
+        if not movie:
+            return render(request, 'movies/nonexistent.html')
         current_user = request.user
         review = self.get_review(movie.id, current_user)
+        if not review:
+            messages.warning(request, self.warning_message)
+            return HttpResponseRedirect(reverse(
+                self.redirect_to, args=(movie.id, )
+            ))
         rating = self.get_rating(movie.id, current_user)
         form = self.form_class(request.POST, instance=review)
         if form.is_valid():
@@ -410,6 +447,9 @@ class DeleteReviewView(View):
         ).first()
 
     def get(self, request, *args, **kwargs):
+        return render(request, 'movies/not_allowed.html')
+
+    def post(self, request, *args, **kwargs):
         movie = self.get_movie(self.kwargs['pk'])
         if not movie:
             return render(request, 'movies/nonexistent.html')

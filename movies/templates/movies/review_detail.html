@@ -16,8 +16,9 @@
         </p>
         {% endif %}
     </div>
-    <form action="{% url 'movies:review-delete' movie.id %}" method="get">
-        <button class="btn btn-primary" type="submit">Delete your review</button>
+    <form action="{%  url 'movies:review-delete' movie.id%}" method="post">
+        {% csrf_token %}
+        <button class="btn btn-danger">Delete your review</button>
     </form>
     {% load crispy_forms_tags %}
     <div class="container py-5">

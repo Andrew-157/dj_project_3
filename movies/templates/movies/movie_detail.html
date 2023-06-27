@@ -12,8 +12,11 @@
     {% if rating %}
     <div>
         <p>You rated this movie as <strong>{{ rating.rating }} out of 10</strong></p>
-        <a href="{% url 'movies:rate-movie-update' movie.id %}">Update your rating</a> |
-        <a href="{% url 'movies:rate-movie-delete' movie.id %}">Delete your rating</a>
+        <a href="{% url 'movies:rate-movie-update' movie.id %}">Update your rating</a>
+        <form action="{% url 'movies:rate-movie-delete' movie.id %}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger">Delete your rating</button>
+        </form>
     </div>
     {% else %}
     <div>
