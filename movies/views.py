@@ -93,6 +93,7 @@ class DirectorPageView(View):
             return render(request, 'movies/nonexistent.html')
         movies = Movie.objects.\
             select_related('director').\
+            prefetch_related('genres').\
             filter(director=director).all().order_by('title')
         return render(request, self.template_name, {'movies': movies,
                                                     'director': director})
