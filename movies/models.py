@@ -5,7 +5,7 @@ from taggit.managers import TaggableManager
 
 
 def validate_file_size(file):
-    max_kb_size = 500
+    max_kb_size = 700
 
     if file.size > max_kb_size * 1024:
         raise ValidationError(f'Files cannot be larger than {max_kb_size}KB')
