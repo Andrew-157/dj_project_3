@@ -79,6 +79,9 @@ class MovieDetailView(DetailView):
                 context['rating'] = None
         else:
             context['rating'] = None
+        context['number_of_ratings'] = Rating.objects.\
+            select_related('movie').\
+            filter(movie__slug=self.kwargs['slug']).all().count()
         return context
 
 
