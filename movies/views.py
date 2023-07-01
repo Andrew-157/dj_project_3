@@ -21,8 +21,8 @@ class IndexView(ListView):
     tagged_items_ids = [t.tag_id for t in TaggedItem.objects.all()]
     queryset = Tag.objects.\
         filter(id__in=tagged_items_ids)\
-        .order_by('name').all().annotate(
-            number_of_movies=Count('taggit_taggeditem_items'))
+        .order_by('name').all().\
+        annotate(number_of_movies=Count('taggit_taggeditem_items'))
 
 
 class MoviesByGenreListView(ListView):
@@ -97,7 +97,8 @@ class DirectorPageView(View):
         movies = Movie.objects.\
             select_related('director').\
             prefetch_related('genres').\
-            filter(director=director).all().order_by('title')
+            filter(director=director).all().order_by('title').\
+            annotate(avg_rating=Avg('ratings__rating'))
         return render(request, self.template_name, {'movies': movies,
                                                     'director': director})
 
@@ -114,7 +115,8 @@ class ActorPageView(View):
             return render(request, 'movies/nonexistent.html')
         movies = Movie.objects.\
             prefetch_related('actors').\
-            filter(actors=actor).all().order_by('title')
+            filter(actors=actor).all().order_by('title').\
+            annotate(avg_rating=Avg('ratings__rating'))
         return render(request, self.template_name, {'movies': movies,
                                                     'actor': actor})
 
@@ -502,6 +504,9 @@ class SearchResultsView(View):
                 Q(title__icontains=query)
             ).all().order_by('title')
             results['movies'] = movies
+            number_of_results = len(
+                results['actors']) + len(results['directors']) + len(results['movies'])
             return render(request, self.template_name, {'results': results,
-                                                        'query': query})
+                                                        'query': query,
+                                                        'number_of_results': number_of_results})
         return render(request, 'movies/empty_search.html')

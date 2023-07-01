@@ -3,23 +3,30 @@
 {% block content %}
 {% with actors=results.actors directors=results.directors movies=results.movies %}
 <div class="container py-5">
-    <div class="container py-5">
-        <h2>Actors found with "{{ query }}" in their name: {{ actors|length }}</h2>
-        {% for actor in actors%}
-        <a href="{% url 'movies:actor-page' actor.slugged_name %}">{{ actor.name }}</a>
-        {% endfor %}
+    <div class="jumbotron">
+        <h1>Number of search results for <mark>{{ query }}</mark>: {{ number_of_results }}</h1>
     </div>
-    <div class="container py-5">
-        <h2>Directors found with "{{ query }}" in their name: {{ directors|length }}</h2>
-        {% for director in directors%}
-        <a href="{% url 'movies:director-page' director.slugged_name %}">{{ director.name }}</a>
-        {% endfor %}
-    </div>
-    <div class="container py-5">
-        <h2>Movies found with "{{ query }}" in their title: {{ movies|length}}</h2>
-        {% for movie in movies %}
-        <a href="{% url 'movies:movie-detail' movie.slug %}">{{ movie.title }}</a>
-        {% endfor %}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4">
+                <h3 class="text-primary">Actors found: {{ actors|length }}</h3>
+                {% for actor in actors%}
+                <a href="{% url 'movies:actor-page' actor.slugged_name %}">{{ actor.name }}</a> <br>
+                {% endfor %}
+            </div>
+            <div class="col-sm-4">
+                <h3 class="text-primary">Directors found: {{ directors|length }}</h3>
+                {% for director in directors%}
+                <a href="{% url 'movies:director-page' director.slugged_name %}">{{ director.name }}</a> <br>
+                {% endfor %}
+            </div>
+            <div class="col-sm-4">
+                <h3 class="text-primary">Movies found: {{ movies|length }}</h3>
+                {% for movie in movies %}
+                <a href="{% url 'movies:movie-detail' movie.slug %}">{{ movie.title }}</a> <br>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
 {% endwith %}

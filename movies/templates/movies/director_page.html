@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container py-5">
     <div class="jumbotron" style="height: 350px;">
-        <h1 class="font-italic">{{ director }}</h1>
+        <h1 class="font-italic">{{ director }}(director)</h1>
         <img src="{{ director.photo.url }}" alt="Director photo" style="float: right; width: 10%;">
         <h2>Number of movies the director has on Cookie: <mark>{{ movies|length }}</mark></h2>
     </div>
