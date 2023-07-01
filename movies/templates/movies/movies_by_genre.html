@@ -12,12 +12,15 @@
             <div class="card-body">
                 <h4 class="font-italic">"{{ movie.title }}"</h4>
                 {% if movie.avg_rating %}
-                <p class="card-text"><strong>Rating by Cookie users: {{ movie.avg_rating }}/10</strong></p>
+                <p class="card-text"><strong>Rating by Cookie users:</strong> {{ movie.avg_rating }}/10</p>
                 {% else %}
                 <p class="text-info">Was not rated by anyone yet</p>
                 {% endif %}
                 <p class="card-text"><strong>Directed by</strong>
                     <a href="{% url 'movies:director-page' movie.director.slugged_name %}">{{movie.director }}</a>
+                </p>
+                <p class="card-text">
+                    <strong>Country:</strong> {{ movie.get_country_display }}
                 </p>
                 <p class="card-text">
                     <strong>Genres:</strong>
