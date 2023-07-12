@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_cleanup.apps.CleanupConfig',
+    'debug_toolbar',
     'crispy_forms',
     'crispy_bootstrap4',
     'taggit',
@@ -55,6 +56,7 @@ INSTALLED_APPS = [
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -161,4 +163,10 @@ TAGGIT_CASE_INSENSITIVE = True
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'users.authentication.EmailAuthBackend'
+]
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
 ]

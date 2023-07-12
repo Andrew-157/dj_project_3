@@ -49,8 +49,7 @@ class MoviesByGenreListView(ListView):
 
 class MovieDetailView(DetailView):
     model = Movie
-    queryset = Movie.objects.prefetch_related(
-        'genres', 'actors').select_related('director').\
+    queryset = Movie.objects.select_related('director').\
         all().annotate(avg_rating=Avg('ratings__rating'))
     template_name = 'movies/movie_detail.html'
     slug_field = 'slug'
@@ -68,11 +67,11 @@ class MovieDetailView(DetailView):
         current_user = self.request.user
         context = super().get_context_data(**kwargs)
         if current_user.is_authenticated:
-            rating = Rating.objects.select_related('owner', 'movie').\
+            rating = Rating.objects.\
                 filter(
-                Q(movie__slug=self.kwargs['slug']) &
-                Q(owner=current_user)
-            ).first()
+                    Q(movie__slug=self.kwargs['slug']) &
+                    Q(owner=current_user)
+                ).first()
             if rating:
                 context['rating'] = rating
             else:
@@ -80,7 +79,6 @@ class MovieDetailView(DetailView):
         else:
             context['rating'] = None
         context['number_of_ratings'] = Rating.objects.\
-            select_related('movie').\
             filter(movie__slug=self.kwargs['slug']).all().count()
         return context
 
@@ -94,9 +92,7 @@ class DirectorPageView(View):
             slugged_name=director_slugged_name).first()
         if not director:
             return render(request, 'movies/nonexistent.html')
-        movies = Movie.objects.\
-            select_related('director').\
-            prefetch_related('genres').\
+        movies = Movie.objects.select_related('director').\
             filter(director=director).all().order_by('title').\
             annotate(avg_rating=Avg('ratings__rating'))
         return render(request, self.template_name, {'movies': movies,
@@ -114,7 +110,6 @@ class ActorPageView(View):
         if not actor:
             return render(request, 'movies/nonexistent.html')
         movies = Movie.objects.\
-            prefetch_related('actors').\
             filter(actors=actor).all().order_by('title').\
             annotate(avg_rating=Avg('ratings__rating'))
         return render(request, self.template_name, {'movies': movies,
@@ -133,11 +128,11 @@ class RateMovieView(View):
         return Movie.objects.filter(id=pk).first()
 
     def rating_exists(self, movie_pk, user):
-        return Rating.objects.select_related('owner', 'movie').\
+        return Rating.objects.\
             filter(
-            Q(owner=user) &
-            Q(movie__id=movie_pk)
-        ).first()
+                Q(owner=user) &
+                Q(movie__id=movie_pk)
+            ).first()
 
     def get(self, request, *args, **kwargs):
         current_user = self.request.user
@@ -192,11 +187,11 @@ class UpdateRatingView(View):
         return Movie.objects.filter(id=pk).first()
 
     def get_rating(self, movie_pk, user):
-        return Rating.objects.select_related('movie', 'owner').\
+        return Rating.objects.\
             filter(
-            Q(owner=user) &
-            Q(movie__id=movie_pk)
-        ).first()
+                Q(owner=user) &
+                Q(movie__id=movie_pk)
+            ).first()
 
     def get(self, request, *args, **kwargs):
         current_user = self.request.user
@@ -244,11 +239,11 @@ class DeleteRatingView(View):
         return Movie.objects.filter(id=pk).first()
 
     def get_rating(self, movie_pk, user):
-        return Rating.objects.select_related('movie', 'owner').\
+        return Rating.objects.\
             filter(
-            Q(owner=user) &
-            Q(movie__id=movie_pk)
-        ).first()
+                Q(owner=user) &
+                Q(movie__id=movie_pk)
+            ).first()
 
     def get(self, request, *args, **kwargs):
         return render(request, 'movies/not_allowed.html')
@@ -287,11 +282,11 @@ class ReviewListView(View):
         reviews = list(Review.objects.select_related('owner', 'movie').
                        filter(movie__id=movie.id).all().order_by('-published'))
         reviews_owner_ids = [review.owner.id for review in reviews]
-        ratings = list(Rating.objects.select_related('owner', 'movie').
+        ratings = list(Rating.objects.
                        filter(
-            Q(movie__id=movie.id) &
-            Q(owner__id__in=reviews_owner_ids)
-        ).all())
+                           Q(movie__id=movie.id) &
+                           Q(owner__id__in=reviews_owner_ids)
+                       ).all())
         ratings_owner_ids = [rating.owner.id for rating in ratings]
         for review in reviews:
             if review.owner.id in ratings_owner_ids:
@@ -321,11 +316,11 @@ class ReviewMovieView(View):
         return Movie.objects.filter(id=pk).first()
 
     def review_exists(self, movie_pk, user):
-        return Review.objects.select_related('owner', 'movie').\
+        return Review.objects.\
             filter(
-            Q(owner=user) &
-            Q(movie__id=movie_pk)
-        ).first()
+                Q(owner=user) &
+                Q(movie__id=movie_pk)
+            ).first()
 
     def get(self, request, *args, **kwargs):
         movie = self.get_movie(self.kwargs['pk'])
@@ -383,14 +378,14 @@ class ReviewDetailView(View):
         return Movie.objects.filter(id=pk).first()
 
     def get_rating(self, movie_pk, user):
-        return Rating.objects.select_related('movie', 'owner').\
+        return Rating.objects. \
             filter(
             Q(owner=user) &
             Q(movie__id=movie_pk)
         ).first()
 
     def get_review(self, movie_pk, user):
-        return Review.objects.select_related('movie', 'owner').\
+        return Review.objects.\
             filter(
             Q(owner=user) &
             Q(movie__id=movie_pk)
@@ -450,7 +445,7 @@ class DeleteReviewView(View):
         return Movie.objects.filter(id=pk).first()
 
     def get_review(self, movie_pk, user):
-        return Review.objects.select_related('movie', 'owner').\
+        return Review.\
             filter(
             Q(owner=user) &
             Q(movie__id=movie_pk)
