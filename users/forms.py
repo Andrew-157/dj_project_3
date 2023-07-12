@@ -16,6 +16,16 @@ class UserCreationForm(BaseUserCreationForm):
             'username', 'email', 'password1', 'password2'
         ]
 
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get('username')
+
+        if username and len(username) < 6:
+            msg = 'Username cannot be shorter than 6 characters.'
+            self.add_error('username', msg)
+
+        return cleaned_data
+
 
 class UserChangeForm(BaseUserChangeForm):
     email = forms.EmailField(required=True,
@@ -27,6 +37,16 @@ class UserChangeForm(BaseUserChangeForm):
         fields = [
             'username', 'email'
         ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get('username')
+
+        if username and len(username) < 6:
+            msg = 'Username cannot be shorter than 6 characters.'
+            self.add_error('username', msg)
+
+        return cleaned_data
 
 
 class EmailLoginForm(AuthenticationForm):
