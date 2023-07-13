@@ -109,7 +109,7 @@ class ActorPageView(View):
         ).first()
         if not actor:
             return render(request, 'movies/nonexistent.html')
-        movies = Movie.objects.\
+        movies = Movie.objects.select_related('director').\
             filter(actors=actor).all().order_by('title').\
             annotate(avg_rating=Avg('ratings__rating'))
         return render(request, self.template_name, {'movies': movies,
@@ -279,7 +279,7 @@ class ReviewListView(View):
         if not movie:
             return render(request, 'movies/nonexistent.html')
         reviews_ratings = []
-        reviews = list(Review.objects.select_related('owner', 'movie').
+        reviews = list(Review.objects.select_related('owner').
                        filter(movie__id=movie.id).all().order_by('-published'))
         reviews_owner_ids = [review.owner.id for review in reviews]
         ratings = list(Rating.objects.
@@ -380,16 +380,16 @@ class ReviewDetailView(View):
     def get_rating(self, movie_pk, user):
         return Rating.objects. \
             filter(
-            Q(owner=user) &
-            Q(movie__id=movie_pk)
-        ).first()
+                Q(owner=user) &
+                Q(movie__id=movie_pk)
+            ).first()
 
     def get_review(self, movie_pk, user):
         return Review.objects.\
             filter(
-            Q(owner=user) &
-            Q(movie__id=movie_pk)
-        ).first()
+                Q(owner=user) &
+                Q(movie__id=movie_pk)
+            ).first()
 
     def get(self, request, *args, **kwargs):
         movie = self.get_movie(self.kwargs['pk'])
@@ -447,9 +447,9 @@ class DeleteReviewView(View):
     def get_review(self, movie_pk, user):
         return Review.\
             filter(
-            Q(owner=user) &
-            Q(movie__id=movie_pk)
-        ).first()
+                Q(owner=user) &
+                Q(movie__id=movie_pk)
+            ).first()
 
     def get(self, request, *args, **kwargs):
         return render(request, 'movies/not_allowed.html')
