@@ -52,8 +52,7 @@ class MovieAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
         return super().get_queryset(request).\
-            select_related('director').\
-            prefetch_related('actors', 'genres')
+            prefetch_related('genres')
 
     def poster_tag(self, obj):
         return format_html(f'<img src="{obj.poster.url}" width="60" height="100">')
