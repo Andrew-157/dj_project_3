@@ -18,11 +18,11 @@ from movies.forms import RateMovieForm, ReviewMovieForm
 class IndexView(ListView):
     template_name = 'movies/index.html'
     context_object_name = 'genres'
-    tagged_items_ids = [t.tag_id for t in TaggedItem.objects.all()]
-    queryset = Tag.objects.\
-        filter(id__in=tagged_items_ids)\
-        .order_by('name').all().\
-        annotate(number_of_movies=Count('taggit_taggeditem_items'))
+
+    def get_queryset(self):
+        tagged_items_ids = [t.tag_id for t in TaggedItem.objects.all()]
+        return Tag.objects.filter(id__in=tagged_items_ids)\
+            .order_by('name').all().annotate(number_of_movies=Count('taggit_taggeditem_items'))
 
 
 class MoviesByGenreListView(ListView):
