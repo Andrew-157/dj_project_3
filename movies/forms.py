@@ -12,3 +12,13 @@ class ReviewMovieForm(forms.ModelForm):
     class Meta:
         model = Review
         fields = ['content']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        content = cleaned_data.get('content')
+
+        if content and len(content) < 11:
+            msg = 'Your review is too short.'
+            self.add_error('content', msg)
+
+        return cleaned_data
