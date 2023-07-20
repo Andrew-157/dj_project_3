@@ -7,7 +7,6 @@ from django.urls import reverse
 
 
 from movies.models import Movie, Director, Rating, Actor, Review
-from movies.forms import RateMovieForm
 from users.models import CustomUser
 from taggit.models import Tag, TaggedItem
 
@@ -412,7 +411,6 @@ class RateMovieViewTest(TestCase):
         login = self.client.login(
             username='User2', password='34somepassword34'
         )
-        form = RateMovieForm()
         response = self.client.get(reverse('movies:rate-movie',
                                            kwargs={'pk': movie.id}))
         self.assertEqual(response.status_code, 200)
