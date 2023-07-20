@@ -20,7 +20,7 @@ class RegisterUserView(View):
         if form.is_valid():
             user = form.save()
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            messages.success(request, 'You were successfully registered')
+            messages.success(request, 'You were successfully registered.')
             return redirect('movies:index')
         return render(request, self.template_name, {'form': form})
 
@@ -61,7 +61,7 @@ class LoginUserView(View):
             user = authenticate(username=email, password=password)
             if user:
                 login(request, user)
-                messages.success(request, 'Welcome back to Cookie')
+                messages.success(request, 'Welcome back.')
                 return redirect('movies:index')
         return render(request, self.template_name, {'form': form})
 
@@ -84,7 +84,7 @@ class ChangeUserView(View):
     def post(self, request):
         current_user = request.user
         form = self.form_class(
-            request.POST, request.FILES, instance=current_user)
+            request.POST, instance=current_user)
         if form.is_valid():
             user = form.save()
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
