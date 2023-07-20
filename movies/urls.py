@@ -20,7 +20,7 @@ urlpatterns = [
          views.ReviewListView.as_view(), name='review-list'),
     path('movies/<int:pk>/review/',
          views.ReviewMovieView.as_view(), name='review-movie'),
-    path('movies/<int:pk>/review/detail/',
+    path('movies/<int:pk>/reviews/detail/',
          views.ReviewDetailView.as_view(), name='review-detail'),
     path('movies/<int:pk>/reviews/delete/',
          views.DeleteReviewView.as_view(), name='review-delete'),

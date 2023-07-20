@@ -126,9 +126,9 @@ class MovieModelTest(TestCase):
 class ReviewModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        user = CustomUser.objects.create(username="antonio",
-                                         email="antonio@gmail.com",
-                                         password="pbkdf2_sha256$600000$ukMIjlUV07iN2iDZ1lKFue$p2h68xOopcsuiC35z08Kb2PvspuMzJQqiFbE09FNDZs=")
+        user = CustomUser.objects.create_user(username="antonio",
+                                              email="antonio@gmail.com",
+                                              password="34somepassword34")
         director = Director.objects.create(name="Quentin Tarantino",
                                            photo=tempfile.NamedTemporaryFile(suffix=".jpg").name)
         movie = Movie.objects.create(title='Pulp Fiction',
@@ -162,9 +162,9 @@ class ReviewModelTest(TestCase):
 class RatingModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        user = CustomUser.objects.create(username="antonio",
-                                         email="antonio@gmail.com",
-                                         password="pbkdf2_sha256$600000$ukMIjlUV07iN2iDZ1lKFue$p2h68xOopcsuiC35z08Kb2PvspuMzJQqiFbE09FNDZs=")
+        user = CustomUser.objects.create_user(username="antonio",
+                                              email="antonio@gmail.com",
+                                              password="34somepassword34")
         director = Director.objects.create(name="Quentin Tarantino",
                                            photo=tempfile.NamedTemporaryFile(suffix=".jpg").name)
         movie = Movie.objects.create(title='Pulp Fiction',

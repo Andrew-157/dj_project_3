@@ -17,7 +17,7 @@
         {% csrf_token %}
         <button class="btn btn-danger">Delete your review</button>
     </form>
-    <!-- <div class="container py-5">
+    <div class="container py-5">
         {% if rating %}
         <p class="font-weight-bold">Your rating of the movie is: <mark>{{rating.rating}}/10</mark></p>
         <p class="font-weight-bold">Visit page about this movie to change or delete your rating:
@@ -29,6 +29,6 @@
             <a href="{% url 'movies:movie-detail' movie.slug %}">{{ movie.title }}</a>
         </p>
         {% endif %}
-    </div> -->
+    </div>
 </div>
 {% endblock %}

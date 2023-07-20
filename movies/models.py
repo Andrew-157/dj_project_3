@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.template.defaultfilters import slugify
 from taggit.managers import TaggableManager
 
@@ -108,7 +109,9 @@ class Rating(models.Model):
     owner = models.ForeignKey(
         'users.CustomUser', related_name='ratings', on_delete=models.CASCADE
     )
-    rating = models.PositiveSmallIntegerField(choices=rating_choices)
+    rating = models.PositiveSmallIntegerField(choices=rating_choices,
+                                              validators=[MinValueValidator(0),
+                                                          MaxValueValidator(10)])
 
     class Meta:
         unique_together = ("movie", "owner")
