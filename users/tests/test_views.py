@@ -86,21 +86,21 @@ class ChangeUserViewTest(TestCase):
         self.assertTrue(response.url.startswith('/become_user/'))
 
     def test_view_uses_correct_template(self):
-        login = self.client.login(username='someone@gmail.com',
+        login = self.client.login(username='some_user',
                                   password='34somepassword34')
         response = self.client.get(reverse('users:change-user'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'users/change_user.html')
 
     def test_correct_objects_in_context(self):
-        login = self.client.login(username='someone@gmail.com',
+        login = self.client.login(username='some_user',
                                   password='34somepassword34')
         response = self.client.get(reverse('users:change-user'))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('form' in response.context)
 
     def test_correct_response_if_invalid_data_posted(self):
-        login = self.client.login(username='someone@gmail.com',
+        login = self.client.login(username='some_user',
                                   password='34somepassword34')
         response = self.client.post(reverse('users:change-user'),
                                     data={'username': 'u',
@@ -108,7 +108,7 @@ class ChangeUserViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_redirect_if_valid_data_posted(self):
-        login = self.client.login(username='someone@gmail.com',
+        login = self.client.login(username='some_user',
                                   password='34somepassword34')
         response = self.client.post(reverse('users:change-user'),
                                     data={'username': 'valid_name',

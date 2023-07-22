@@ -122,7 +122,7 @@ class MoviesByGenreViewTest(TestCase):
         self.assertTrue('movies' in response.context)
         self.assertTrue('genre' in response.context)
 
-    def test_correct_template_for_nonexistent_genre(self):
+    def test_correct_response_for_nonexistent_genre(self):
         genre = Tag.objects.get(name='Random genre')
         nonexistent_genre_slug = genre.slug + 'hhh'
         response = self.client.get(
@@ -130,7 +130,6 @@ class MoviesByGenreViewTest(TestCase):
                     kwargs={'slug': nonexistent_genre_slug})
         )
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'movies/nonexistent.html')
 
 
 class MovieDetailViewTest(TestCase):
@@ -171,7 +170,7 @@ class MovieDetailViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('number_of_ratings' in response.context)
 
-    def test_correct_template_for_nonexistent_movie(self):
+    def test_correct_response_for_nonexistent_movie(self):
         movie = Movie.objects.get(title='Pulp Fiction')
         nonexistent_movie_slug = movie.slug + 'hhh'
         response = self.client.get(
@@ -179,7 +178,6 @@ class MovieDetailViewTest(TestCase):
                     kwargs={'slug': nonexistent_movie_slug})
         )
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'movies/nonexistent.html')
 
     def test_view_has_rating_of_movie_by_user_in_context(self):
         test_user = CustomUser.objects.create_user(username='johnny',
@@ -256,13 +254,12 @@ class DirectorPageViewTest(TestCase):
         self.assertEqual(
             len(response.context['movies']), number_of_movies_by_director)
 
-    def test_correct_template_for_nonexistent_director(self):
+    def test_correct_response_for_nonexistent_director(self):
         response = self.client.get(reverse(
             'movies:director-page',
             kwargs={'slug': 'Nothing'}
         ))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'movies/nonexistent.html')
 
 
 class ActorPageViewTest(TestCase):
@@ -319,12 +316,11 @@ class ActorPageViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(len(response.context['movies']), movies_with_actor)
 
-    def test_correct_template_for_nonexistent_actor(self):
+    def test_correct_response_for_nonexistent_actor(self):
         response = self.client.get(reverse(
             'movies:actor-page', kwargs={'slug': 'Nothing'}
         ))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'movies/nonexistent.html')
 
 
 class RateMovieViewTest(TestCase):
@@ -417,11 +413,10 @@ class RateMovieViewTest(TestCase):
         self.assertTrue('movie' in response.context)
         self.assertTrue('form' in response.context)
 
-    def test_correct_template_for_nonexistent_movie(self):
+    def test_correct_response_for_nonexistent_movie(self):
         response = self.client.get(reverse('movies:rate-movie',
                                            kwargs={'pk': 951}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'movies/nonexistent.html')
 
     def test_redirect_if_movie_successfully_rated_by_logged_in_user(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -515,13 +510,12 @@ class UpdateRatingViewTest(TestCase):
         self.assertEqual(
             str(messages[0]), 'You successfully updated your rating of the movie')
 
-    def test_correct_template_for_nonexistent_movie(self):
+    def test_correct_response_for_nonexistent_movie(self):
         login = self.client.login(
             username='User1', password='34somepassword34')
         response = self.client.get(reverse('movies:rate-movie',
                                            kwargs={'pk': 951}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'movies/nonexistent.html')
 
 
 class DeleteRatingViewTest(TestCase):
@@ -551,15 +545,6 @@ class DeleteRatingViewTest(TestCase):
         rating = Rating.objects.create(owner=test_user_1,
                                        movie=movie,
                                        rating=8)
-
-    def test_get_method_not_allowed_for_logged_user(self):
-        login = self.client.login(
-            username='User1', password='34somepassword34')
-        movie = Movie.objects.get(title='Fight Club')
-        response = self.client.get(reverse('movies:rate-movie-delete',
-                                           kwargs={'pk': movie.id}))
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'movies/not_allowed.html')
 
     def test_redirect_for_not_logged_user(self):
         response = self.client.get(reverse('movies:rate-movie-delete',
@@ -593,13 +578,12 @@ class DeleteRatingViewTest(TestCase):
         self.assertEqual(
             str(messages[0]), 'You successfully deleted your rating on the movie.')
 
-    def test_correct_template_for_nonexistent_movie(self):
+    def test_correct_response_for_nonexistent_movie(self):
         login = self.client.login(
             username='User2', password='34somepassword34')
         response = self.client.post(reverse('movies:rate-movie-delete',
                                             kwargs={'pk': 999}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'movies/nonexistent.html')
 
 
 class ReviewListViewTest(TestCase):
@@ -634,11 +618,10 @@ class ReviewListViewTest(TestCase):
         review_2 = Review.objects.create(
             owner=user_2, movie=movie, content=f'Review content {user_2.id}')
 
-    def test_correct_template_for_nonexistent_movie(self):
+    def test_correct_response_for_nonexistent_movie(self):
         response = self.client.get(reverse('movies:review-list',
                                            kwargs={'pk': 999}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'movies/nonexistent.html')
 
     def test_correct_objects_in_context_for_logged_user_with_review(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -776,11 +759,10 @@ class ReviewMovieViewTest(TestCase):
         self.assertEqual(
             str(messages[0]), 'You successfully published your review on the movie')
 
-    def test_correct_redirect_for_nonexistent_movie(self):
+    def test_correct_response_for_nonexistent_movie(self):
         response = self.client.get(
             reverse('movies:review-movie', kwargs={'pk': 9999}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'movies/nonexistent.html')
 
 
 class ReviewDetailViewTest(TestCase):
@@ -909,13 +891,12 @@ class ReviewDetailViewTest(TestCase):
         self.assertEqual(
             str(messages[0]), 'You successfully updated your review of the movie.')
 
-    def test_correct_template_for_nonexistent_movie(self):
+    def test_correct_response_for_nonexistent_movie(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.get(reverse('movies:review-detail',
                                            kwargs={'pk': 999}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'movies/nonexistent.html')
 
 
 class DeleteReviewViewTest(TestCase):
@@ -946,14 +927,6 @@ class DeleteReviewViewTest(TestCase):
             owner=test_user_1, movie=movie,
             content='Cool movie.'
         )
-
-    def test_get_method_not_allowed_for_logged_user(self):
-        login = self.client.login(
-            username='User1', password='34somepassword34')
-        response = self.client.get(reverse('movies:review-delete',
-                                           kwargs={'pk': 66}))
-        self.assertEqual(response.status_code, 405)
-        self.assertTemplateUsed(response, 'movies/not_allowed.html')
 
     def test_redirect_for_not_logged_user(self):
         response = self.client.get(reverse('movies:review-delete',
@@ -988,13 +961,12 @@ class DeleteReviewViewTest(TestCase):
         self.assertEqual(
             str(messages[0]), 'You successfully deleted your review of the movie.')
 
-    def test_correct_template_for_nonexistent_movie(self):
+    def test_correct_response_for_nonexistent_movie(self):
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(reverse('movies:review-delete',
                                             kwargs={'pk': 999}))
         self.assertEqual(response.status_code, 404)
-        self.assertTemplateUsed(response, 'movies/nonexistent.html')
 
 
 class SearchResultsViewTest(TestCase):

@@ -47,9 +47,6 @@ class MoviesByGenreListView(ListView):
         context['genre'] = self.kwargs['slug']
         return context
 
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
 
 class MovieDetailView(DetailView):
     model = Movie
@@ -501,4 +498,4 @@ class SearchResultsView(View):
 
 
 def error_404_handler(request, exception):
-    return render(request, 'errors/404.html', exception)
+    return render(request, 'errors/404.html', status=404)
