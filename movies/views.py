@@ -7,7 +7,7 @@ from django.db.models.query import QuerySet
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, View
@@ -48,10 +48,7 @@ class MoviesByGenreListView(ListView):
         return context
 
     def dispatch(self, request, *args, **kwargs):
-        try:
-            return super().dispatch(request, *args, **kwargs)
-        except Http404:
-            return render(request, 'movies/nonexistent.html', status=404)
+        return super().dispatch(request, *args, **kwargs)
 
 
 class MovieDetailView(DetailView):
@@ -82,10 +79,7 @@ class MovieDetailView(DetailView):
         return context
 
     def dispatch(self, request, *args, **kwargs):
-        try:
-            return super().dispatch(request, *args, **kwargs)
-        except Http404:
-            return render(request, 'movies/nonexistent.html', status=404)
+        return super().dispatch(request, *args, **kwargs)
 
 
 class DirectorPageView(View):
@@ -96,7 +90,7 @@ class DirectorPageView(View):
         director = Director.objects.filter(
             slugged_name=director_slugged_name).first()
         if not director:
-            return render(request, 'movies/nonexistent.html', status=404)
+            raise Http404
         movies = Movie.objects.select_related('director').\
             filter(director=director).all().order_by('title').\
             annotate(avg_rating=Avg('ratings__rating'))
@@ -113,7 +107,7 @@ class ActorPageView(View):
             slugged_name=actor_slugged_name
         ).first()
         if not actor:
-            return render(request, 'movies/nonexistent.html', status=404)
+            raise Http404
         movies = Movie.objects.select_related('director').\
             filter(actors=actor).all().order_by('title').\
             annotate(avg_rating=Avg('ratings__rating'))
@@ -144,7 +138,7 @@ class RateMovieView(View):
         movie_pk = self.kwargs['pk']
         movie = self.get_movie(movie_pk)
         if not movie:
-            return render(request, 'movies/nonexistent.html', status=404)
+            raise Http404
         if not current_user.is_authenticated:
             messages.info(
                 request, self.info_message
@@ -161,7 +155,7 @@ class RateMovieView(View):
         current_user = self.request.user
         movie = self.get_movie(self.kwargs['pk'])
         if not movie:
-            return render(request, 'movies/nonexistent.html', status=404)
+            raise Http404
         if not current_user.is_authenticated:
             messages.info(
                 request, self.info_message
@@ -202,7 +196,7 @@ class UpdateRatingView(View):
         current_user = self.request.user
         movie = self.get_movie(self.kwargs['pk'])
         if not movie:
-            return render(request, 'movies/nonexistent.html', status=404)
+            raise Http404
         rating = self.get_rating(movie.id, current_user)
         if not rating:
             messages.warning(request, self.warning_message)
@@ -215,7 +209,7 @@ class UpdateRatingView(View):
         current_user = self.request.user
         movie = self.get_movie(self.kwargs['pk'])
         if not movie:
-            return render(request, 'movies/nonexistent.html', status=404)
+            raise Http404
         rating = self.get_rating(movie.id, current_user)
         if not rating:
             messages.warning(request, self.warning_message)
@@ -250,14 +244,11 @@ class DeleteRatingView(View):
                 Q(movie__id=movie_pk)
             ).first()
 
-    def get(self, request, *args, **kwargs):
-        return render(request, 'movies/not_allowed.html', status=405)
-
     def post(self, request, *args, **kwargs):
         current_user = self.request.user
         movie = self.get_movie(self.kwargs['pk'])
         if not movie:
-            return render(request, 'movies/nonexistent.html', status=404)
+            raise Http404
         rating = self.get_rating(movie.id, current_user)
         if not rating:
             messages.warning(request, self.warning_message)
@@ -282,7 +273,7 @@ class ReviewListView(View):
     def get(self, request, *args, **kwargs):
         movie = self.get_movie(self.kwargs['pk'])
         if not movie:
-            return render(request, 'movies/nonexistent.html', status=404)
+            raise Http404
         reviews_ratings = []
         reviews = list(Review.objects.select_related('owner').
                        filter(movie__id=movie.id).all().order_by('-published'))
@@ -330,7 +321,7 @@ class ReviewMovieView(View):
     def get(self, request, *args, **kwargs):
         movie = self.get_movie(self.kwargs['pk'])
         if not movie:
-            return render(request, 'movies/nonexistent.html', status=404)
+            raise Http404
         current_user = self.request.user
         if not current_user.is_authenticated:
             messages.info(request, self.info_message)
@@ -350,7 +341,7 @@ class ReviewMovieView(View):
         current_user = self.request.user
         movie = self.get_movie(self.kwargs['pk'])
         if not movie:
-            return render(request, 'movies/nonexistent.html', status=404)
+            raise Http404
         if not current_user.is_authenticated:
             messages.info(request, self.info_message)
             return HttpResponseRedirect(reverse(
@@ -399,7 +390,7 @@ class ReviewDetailView(View):
     def get(self, request, *args, **kwargs):
         movie = self.get_movie(self.kwargs['pk'])
         if not movie:
-            return render(request, 'movies/nonexistent.html', status=404)
+            raise Http404
         current_user = self.request.user
         review = self.get_review(movie.id, current_user)
         if not review:
@@ -417,7 +408,7 @@ class ReviewDetailView(View):
     def post(self, request, *args, **kwargs):
         movie = self.get_movie(self.kwargs['pk'])
         if not movie:
-            return render(request, 'movies/nonexistent.html', status=404)
+            raise Http404
         current_user = request.user
         review = self.get_review(movie.id, current_user)
         if not review:
@@ -456,13 +447,10 @@ class DeleteReviewView(View):
                 Q(movie__id=movie_pk)
             ).first()
 
-    def get(self, request, *args, **kwargs):
-        return render(request, 'movies/not_allowed.html', status=405)
-
     def post(self, request, *args, **kwargs):
         movie = self.get_movie(self.kwargs['pk'])
         if not movie:
-            return render(request, 'movies/nonexistent.html', status=404)
+            raise Http404
         current_user = self.request.user
         review = self.get_review(movie.id, current_user)
         if not review:
@@ -510,3 +498,7 @@ class SearchResultsView(View):
                                                         'query': query,
                                                         'number_of_results': number_of_results})
         return render(request, 'movies/empty_search.html')
+
+
+def error_404_handler(request, exception):
+    return render(request, 'errors/404.html', exception)
