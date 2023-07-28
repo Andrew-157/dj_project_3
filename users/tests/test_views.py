@@ -25,7 +25,7 @@ class RegisterUserViewTest(TestCase):
                                           'password2': '34password34'})
         self.assertEqual(response.status_code, 200)
 
-    def test_correct_redirect_if_successful_registration(self):
+    def test_correct_response_if_successful_registration(self):
         response = self.client.post(reverse('users:register'),
                                     data={'username': 'user12',
                                           'email': 'user12@gmail.com',
@@ -35,6 +35,8 @@ class RegisterUserViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('movies:index'))
         self.assertEqual(str(messages[0]), 'You were successfully registered.')
+        new_user = CustomUser.objects.filter(username='user12').first()
+        self.assertTrue(new_user is not None)
 
 
 class LoginUserViewTest(TestCase):
@@ -61,7 +63,7 @@ class LoginUserViewTest(TestCase):
                                         'password': 'wrongpassword123'})
         self.assertEqual(response.status_code, 200)
 
-    def test_redirect_if_successful_login(self):
+    def test_response_if_successful_login(self):
         response = self.client.post(reverse('users:login'),
                                     data={
                                         'username': 'someone@gmail.com',
@@ -71,6 +73,7 @@ class LoginUserViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('movies:index'))
         self.assertEqual(str(messages[0]), 'Welcome back.')
+        self.assertTrue(response.wsgi_request.user.is_authenticated)
 
 
 class ChangeUserViewTest(TestCase):
@@ -118,6 +121,7 @@ class ChangeUserViewTest(TestCase):
         self.assertRedirects(response, reverse('movies:index'))
         self.assertEqual(
             str(messages[0]), 'You successfully changed your credentials')
+        self.assertEqual(response.wsgi_request.user.username, 'valid_name')
 
 
 class BecomeUserViewTest(TestCase):

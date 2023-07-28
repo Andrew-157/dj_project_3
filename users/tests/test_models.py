@@ -11,6 +11,6 @@ class CustomUserModelTest(TestCase):
                                        password="34somepassword34")
 
     def test_email_label(self):
-        user = CustomUser.objects.get(id=1)
+        user = CustomUser.objects.get(username='antonio')
         field_label = user._meta.get_field('email').verbose_name
         self.assertEqual(field_label, 'email')
