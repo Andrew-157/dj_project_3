@@ -418,7 +418,7 @@ class RateMovieViewTest(TestCase):
                                            kwargs={'pk': 951}))
         self.assertEqual(response.status_code, 404)
 
-    def test_redirect_if_movie_successfully_rated_by_logged_in_user(self):
+    def test_response_if_movie_successfully_rated_by_logged_in_user(self):
         movie = Movie.objects.get(title='Fight Club')
         login = self.client.login(username='User2',
                                   password='34somepassword34')
@@ -430,6 +430,8 @@ class RateMovieViewTest(TestCase):
                                                kwargs={'slug': movie.slug}))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(str(messages[0]), 'You successfully rated this movie')
+        rating = Rating.objects.filter(owner__username='User2').first()
+        self.assertTrue(rating is not None)
 
 
 class UpdateRatingViewTest(TestCase):
@@ -496,19 +498,22 @@ class UpdateRatingViewTest(TestCase):
         self.assertEqual(
             str(messages[0]), 'You have no rating on this movie to update')
 
-    def test_redirect_if_logged_user_successfully_updated_rating(self):
+    def test_response_if_logged_user_successfully_updated_rating(self):
         movie = Movie.objects.get(title='Fight Club')
         login = self.client.login(username='User1',
                                   password='34somepassword34')
         response = self.client.post(
             reverse('movies:rate-movie-update', kwargs={'pk': movie.id}),
-            data={'rating': 9})
+            data={'rating': 10})
         messages = list(get_messages(response.wsgi_request))
         self.assertRedirects(response, reverse('movies:movie-detail',
                                                kwargs={'slug': movie.slug}))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             str(messages[0]), 'You successfully updated your rating of the movie')
+        rating = Rating.objects.filter(owner__username='User1').first()
+        self.assertTrue(rating is not None)
+        self.assertEqual(rating.rating, 10)
 
     def test_correct_response_for_nonexistent_movie(self):
         login = self.client.login(
@@ -565,7 +570,7 @@ class DeleteRatingViewTest(TestCase):
         self.assertEqual(
             str(messages[0]), 'You have no rating on the movie to delete.')
 
-    def test_redirect_logged_user_after_success_deleting_of_rating(self):
+    def test_response_logged_user_after_success_deleting_of_rating(self):
         movie = Movie.objects.get(title='Fight Club')
         login = self.client.login(
             username='User1', password='34somepassword34')
@@ -577,6 +582,8 @@ class DeleteRatingViewTest(TestCase):
                                                kwargs={'slug': movie.slug}))
         self.assertEqual(
             str(messages[0]), 'You successfully deleted your rating on the movie.')
+        rating = Rating.objects.filter(owner__username='User1').first()
+        self.assertTrue(rating is None)
 
     def test_correct_response_for_nonexistent_movie(self):
         login = self.client.login(
@@ -744,13 +751,13 @@ class ReviewMovieViewTest(TestCase):
         self.assertTrue('movie' in response.context)
         self.assertTrue('form' in response.context)
 
-    def test_redirect_if_logged_user_posted_valid_data(self):
+    def test_response_if_logged_user_posted_valid_data(self):
         movie = Movie.objects.get(title='Fight Club')
         login = self.client.login(username='User2',
                                   password='34somepassword34')
         response = self.client.post(
             reverse('movies:review-movie', kwargs={'pk': movie.id}),
-            data={'content': 'Cool  in my opinion.'}
+            data={'content': 'Cool movie in my opinion.'}
         )
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(response.status_code, 302)
@@ -758,6 +765,9 @@ class ReviewMovieViewTest(TestCase):
                                                kwargs={'pk': movie.id}))
         self.assertEqual(
             str(messages[0]), 'You successfully published your review on the movie')
+        review = Review.objects.filter(owner__username='User2').first()
+        self.assertTrue(review is not None)
+        self.assertEqual(review.content, 'Cool movie in my opinion.')
 
     def test_correct_response_for_nonexistent_movie(self):
         response = self.client.get(
@@ -877,7 +887,7 @@ class ReviewDetailViewTest(TestCase):
         self.assertTrue('movie' in response.context)
         self.assertTrue('form' in response.context)
 
-    def test_correct_redirect_if_post_valid_data(self):
+    def test_correct_response_if_post_valid_data(self):
         movie = Movie.objects.get(title='Fight Club')
         login = self.client.login(username='User1',
                                   password='34somepassword34')
@@ -890,6 +900,9 @@ class ReviewDetailViewTest(TestCase):
                                                kwargs={'pk': movie.id}))
         self.assertEqual(
             str(messages[0]), 'You successfully updated your review of the movie.')
+        review = Review.objects.filter(owner__username='User1').first()
+        self.assertTrue(review is not None)
+        self.assertEqual(review.content, 'Enough content.')
 
     def test_correct_response_for_nonexistent_movie(self):
         login = self.client.login(username='User1',
@@ -947,7 +960,7 @@ class DeleteReviewViewTest(TestCase):
         self.assertEqual(
             str(messages[0]), 'You have no review of the movie to delete.')
 
-    def test_correct_redirect_for_deleting_of_review_by_logged_user_with_review(self):
+    def test_correct_response_for_deleting_of_review_by_logged_user_with_review(self):
         movie = Movie.objects.get(title='Fight Club')
         login = self.client.login(
             username='User1', password='34somepassword34'
@@ -960,6 +973,8 @@ class DeleteReviewViewTest(TestCase):
                                                kwargs={'pk': movie.id}))
         self.assertEqual(
             str(messages[0]), 'You successfully deleted your review of the movie.')
+        review = Review.objects.filter(owner__username='User1').first()
+        self.assertTrue(review is None)
 
     def test_correct_response_for_nonexistent_movie(self):
         login = self.client.login(username='User1',
