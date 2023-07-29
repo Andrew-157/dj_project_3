@@ -114,7 +114,7 @@ class MoviesByGenreViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/movies_by_genre.html')
 
-    def test_correct_context_names_are_user(self):
+    def test_correct_context_names_are_used(self):
         genre = Tag.objects.get(name='Random genre')
         response = self.client.get(
             reverse('movies:genre-movies', kwargs={'slug': genre.slug}))
