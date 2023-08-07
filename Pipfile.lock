@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5781f4aacbdc2030d00f60fdb60735bf815d693da419e6a87ef70790d8c200fd"
+            "sha256": "3497807677385017fe6136ecb256caac5131e15a069d22528feef05c6877c086"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -31,13 +31,6 @@
             ],
             "index": "pypi",
             "version": "==2022.1"
-        },
-        "dj-database-url": {
-            "hashes": [
-                "sha256:9c9e5f7224f62635a787e9cc3c6762c9be2b19541a21e3c08fa573bd01609b4b",
-                "sha256:a35a9f0f43775ca6f90d819dc456233ef7bcc76b47377d5d908b75c7eb320624"
-            ],
-            "version": "==2.0.0"
         },
         "django": {
             "hashes": [
@@ -79,14 +72,6 @@
             "index": "pypi",
             "version": "==0.10.0"
         },
-        "django-heroku": {
-            "hashes": [
-                "sha256:2bc690aab89eedbe01311752320a9a12e7548e3b0ed102681acc5736a41a4762",
-                "sha256:6af4bc3ae4a9b55eaad6dbe5164918982d2762661aebc9f83d9fa49f6009514e"
-            ],
-            "index": "pypi",
-            "version": "==0.3.1"
-        },
         "django-taggit": {
             "hashes": [
                 "sha256:4d52de9d37245a9b9f98c0ec71fdccf1d2283e38e8866d40a7ae6a3b6787a161",
@@ -94,22 +79,6 @@
             ],
             "index": "pypi",
             "version": "==4.0.0"
-        },
-        "gunicorn": {
-            "hashes": [
-                "sha256:3213aa5e8c24949e792bcacfc176fef362e7aac80b76c56f6b5122bf350722f0",
-                "sha256:88ec8bff1d634f98e61b9f65bc4bf3cd918a90806c6f5c48bc5603849ec81033"
-            ],
-            "index": "pypi",
-            "version": "==21.2.0"
-        },
-        "packaging": {
-            "hashes": [
-                "sha256:994793af429502c4ea2ebf6bf664629d07c1a9fe974af92966e4b8d2df7edc61",
-                "sha256:a392980d2b6cffa644431898be54b0045151319d1e7ec34f0cfed48767dd334f"
-            ],
-            "markers": "python_version >= '3.7'",
-            "version": "==23.1"
         },
         "pillow": {
             "hashes": [
@@ -213,14 +182,6 @@
             ],
             "markers": "sys_platform == 'win32'",
             "version": "==2023.3"
-        },
-        "whitenoise": {
-            "hashes": [
-                "sha256:15fe60546ac975b58e357ccaeb165a4ca2d0ab697e48450b8f0307ca368195a8",
-                "sha256:16468e9ad2189f09f4a8c635a9031cc9bb2cdbc8e5e53365407acf99f7ade9ec"
-            ],
-            "index": "pypi",
-            "version": "==6.5.0"
         }
     },
     "develop": {

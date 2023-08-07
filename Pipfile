@@ -13,9 +13,6 @@ django-cleanup = "*"
 crispy-bootstrap4 = "*"
 django-taggit = "*"
 django-debug-toolbar = "*"
-gunicorn = "*"
-django-heroku = "*"
-whitenoise = "*"
 
 [dev-packages]
 autopep8 = "*"
