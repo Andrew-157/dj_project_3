@@ -418,7 +418,47 @@ class RateMovieViewTest(TestCase):
                                            kwargs={'pk': 951}))
         self.assertEqual(response.status_code, 404)
 
-    def test_response_if_movie_successfully_rated_by_logged_in_user(self):
+    def test_logged_user_rates_movie_with_value_less_than_zero(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User2',
+                                  password='34somepassword34')
+        response = self.client.post(
+            reverse('movies:rate-movie', kwargs={'pk': movie.id}),
+            data={'rating': -1})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/rate_movie.html')
+
+    def test_logged_user_rates_movie_with_value_bigger_than_ten(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User2',
+                                  password='34somepassword34')
+        response = self.client.post(
+            reverse('movies:rate-movie', kwargs={'pk': movie.id}),
+            data={'rating': 11})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/rate_movie.html')
+
+    def test_logged_user_rates_movie_with_empty_data(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User2',
+                                  password='34somepassword34')
+        response = self.client.post(
+            reverse('movies:rate-movie', kwargs={'pk': movie.id}),
+            data={})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/rate_movie.html')
+
+    def test_logged_user_rates_movie_with_no_data(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User2',
+                                  password='34somepassword34')
+        response = self.client.post(
+            reverse('movies:rate-movie', kwargs={'pk': movie.id}),
+            data=None)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/rate_movie.html')
+
+    def test_correct_response_if_movie_successfully_rated_by_logged_in_user(self):
         movie = Movie.objects.get(title='Fight Club')
         login = self.client.login(username='User2',
                                   password='34somepassword34')
@@ -479,6 +519,25 @@ class UpdateRatingViewTest(TestCase):
                                            kwargs={'pk': movie.id}))
         self.assertEqual(response.status_code, 200)
 
+    def test_correct_objects_in_context_for_logged_user_with_rating(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.get(reverse('movies:rate-movie-update',
+                                           kwargs={'pk': movie.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('movie' in response.context)
+        self.assertTrue('form' in response.context)
+
+    def test_correct_template_used_for_logged_user_with_rating(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.get(reverse('movies:rate-movie-update',
+                                           kwargs={'pk': movie.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/update_rating.html')
+
     def test_redirect_if_user_not_logged_in(self):
         response = self.client.get(reverse('movies:rate-movie-update',
                                            kwargs={'pk': 87}))
@@ -497,6 +556,46 @@ class UpdateRatingViewTest(TestCase):
                                                kwargs={'slug': movie.slug}))
         self.assertEqual(
             str(messages[0]), 'You have no rating on this movie to update')
+
+    def test_logged_user_updates_rating_with_value_less_than_zero(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('movies:rate-movie-update',
+                                            kwargs={'pk': movie.id}),
+                                    data={'rating': -1})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/update_rating.html')
+
+    def test_logged_user_updates_rating_with_value_bigger_than_ten(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('movies:rate-movie-update',
+                                            kwargs={'pk': movie.id}),
+                                    data={'rating': 11})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/update_rating.html')
+
+    def test_logged_user_updates_rating_with_empty_data(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('movies:rate-movie-update',
+                                            kwargs={'pk': movie.id}),
+                                    data={})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/update_rating.html')
+
+    def test_logged_user_updates_rating_with_no_data(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('movies:rate-movie-update',
+                                            kwargs={'pk': movie.id}),
+                                    data=None)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/update_rating.html')
 
     def test_response_if_logged_user_successfully_updated_rating(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -751,6 +850,26 @@ class ReviewMovieViewTest(TestCase):
         self.assertTrue('movie' in response.context)
         self.assertTrue('form' in response.context)
 
+    def test_logged_user_posts_review_with_empty_data(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User2',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('movies:review-movie',
+                                            kwargs={'pk': movie.id},
+                                            data={}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/review_movie.html')
+
+    def test_logged_user_posts_review_with_empty_data(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User2',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('movies:review-movie',
+                                            kwargs={'pk': movie.id}),
+                                    data=None)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/review_movie.html')
+
     def test_response_if_logged_user_posted_valid_data(self):
         movie = Movie.objects.get(title='Fight Club')
         login = self.client.login(username='User2',
@@ -886,6 +1005,26 @@ class ReviewDetailViewTest(TestCase):
         self.assertTemplateUsed(response, 'movies/review_detail.html')
         self.assertTrue('movie' in response.context)
         self.assertTrue('form' in response.context)
+
+    def test_logged_user_posts_review_with_empty_data(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('movies:review-detail',
+                                            kwargs={'pk': movie.id}),
+                                    data={})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/review_detail.html')
+
+    def test_logged_user_posts_review_with_no_data(self):
+        movie = Movie.objects.get(title='Fight Club')
+        login = self.client.login(username='User1',
+                                  password='34somepassword34')
+        response = self.client.post(reverse('movies:review-detail',
+                                            kwargs={'pk': movie.id}),
+                                    data=None)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/review_detail.html')
 
     def test_correct_response_if_post_valid_data(self):
         movie = Movie.objects.get(title='Fight Club')
