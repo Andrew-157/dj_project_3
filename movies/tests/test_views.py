@@ -353,7 +353,7 @@ class RateMovieViewTest(TestCase):
             rating=9
         )
 
-    def test_view_url_exists_at_desired_place_if_logged_in(self):
+    def test_view_url_exists_at_desired_place_if_user_logged_in(self):
         movie = Movie.objects.get(title='Fight Club')
         login = self.client.login(
             username='User2', password='34somepassword34')
