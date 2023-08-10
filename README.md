@@ -1,10 +1,15 @@
 # DJANGO PROJECT 'Cookie'
 
-## Usage
+### Usage
 
 Cookie is a website for reviewing and rating movies published on site. Admin users publish different movie titles with short synopsis for each movie,its director, list of genres and actors. Users can search for different movie titles, actors and directors.
 
-## Project structure
+### Technologies
+* `Django`
+* `PostgreSQL`
+* `Bootstrap4`
+
+### Project structure
 
 Cookie uses `PostgreSQL` database and `Bootstrap4` for HTML templates
 
@@ -17,7 +22,7 @@ see its actors, genres and director. Also users can see list of reviews for each
 
 `users` app manages registration, login and logout operations. Also this app manages operation of changing users info(username and email). `users` app also has CustomUser model.
 
-## Installation
+### Installation
 
 Clone repository, using command:
 ```
@@ -29,16 +34,16 @@ and go into directory 'dj_project_3'.
 
 Requirements:
 ```
-    django = "*"
-    pillow = "*"
-    django-environ = "*"
-    django-crispy-forms = "*"
-    django-cleanup = "*"
-    crispy-bootstrap4 = "*"
-    django-taggit = "*"
-    django-debug-toolbar = "*"
-    psycopg2-binary = "*"
-    autopep8
+    django==4.2.4
+    pillow==10.0.0
+    django-environ==0.10.0
+    django-crispy-forms==2.0
+    django-cleanup==8.0.0
+    crispy-bootstrap4==2022.1
+    django-taggit==4.0.0
+    django-debug-toolbar==4.1.0
+    psycopg2-binary==2.9.7
+    autopep8==2.0.2
 ```
 
 If you are using pipenv,run in the command line from directory where Pipfile is located:
@@ -51,9 +56,20 @@ To activate environment using pipenv, run in the command line in the same direct
     pipenv shell
 ```
 
-## Run project
+You can also use file `requirements.txt` with pip.
+Inside your activated virtual environment, run:
+```
+    pip install -r requirements.txt
+```
+For `Windows`
+```
+    pip3 install -r requirements.txt
+```
+For `Unix`-based systems
 
-### The following steps show how to run project locally(i.e., with DEBUG=True)
+### Run project
+
+**The following steps show how to run project locally(i.e., with DEBUG=True)**
 
 Generate secret key, using the following code:
 ```python
@@ -91,7 +107,7 @@ After that, in command line run:
 
 Go to your browser at the address: 'http://127.0.0.1:8000/', you should be able to see Cookie's index page
 
-## Admin site
+### Admin site
 
 If you want to visit admin site, run the following command:
 ```
@@ -102,9 +118,9 @@ Enter credentials for your admin user, and visit 'http://127.0.0.1:8000/admin',
 login using the same credentials you used when you created admin user.
 
 
-## Testing
+### Testing
 
-## Each app contains 'tests' directory with `__init__.py` and 3 modules(each module's name starts with 'test')
+**Each app contains 'tests' directory with `__init__.py` and 3 modules(each module's name starts with 'test')**
 
 **Tests for `Cookie` are written using Django's `TestCase`**
 
