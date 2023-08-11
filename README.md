@@ -105,7 +105,7 @@ After that, in command line run:
     python manage.py runserver
 ```
 
-Go to your browser at the address: 'http://127.0.0.1:8000/', you should be able to see Cookie's index page
+Go to your browser at the address: 'http://127.0.0.1:8000/', you should be able to see Cookie's index page.
 
 ### Admin site
 
