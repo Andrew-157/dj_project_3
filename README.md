@@ -34,8 +34,8 @@ and go into directory 'dj_project_3'.
 
 Requirements:
 ```
-    django==4.2.4
-    pillow==10.0.0
+    Django==4.2.4
+    Pillow==10.0.0
     django-environ==0.10.0
     django-crispy-forms==2.0
     django-cleanup==8.0.0
@@ -162,3 +162,7 @@ To run particular test method(that is test itself,in fact) from any class in mod
 ```
     python manage.py test personal.tests.test_views.ReviewMovieViewTest.test_correct_response_for_nonexistent_movie
 ```
+
+## Inspiration
+
+Main inspiration for `Cookie` comes from [IMDb](https://www.imdb.com/).
