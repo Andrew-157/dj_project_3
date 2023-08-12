@@ -24,6 +24,11 @@ see its actors, genres and director. Also users can see list of reviews for each
 
 ### Installation
 
+To work with this project you need `Python` installed on your machine
+
+If you do not have Python installed, visit official documentation and install it: https://www.python.org/downloads/
+
+
 Clone repository, using command:
 ```
     git clone https://github.com/Andrew-157/dj_project_3
