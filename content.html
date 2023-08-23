@@ -1,0 +1,55 @@
+<!DOCTYPE html>\n<html lang="en">\n\n
+
+<head>\n
+    <meta charset="UTF-8">\n <me ta http-equiv="X-UA-Compatible" content="IE=edge">\n
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">\n
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" \n
+            integrity="sha38
+4-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />\n <title>Cookie</title>
+        \n
+</head>
+\n\n
+
+<body>\n\n \n\n <nav class="navbar navbar-expand-lg navbar-light bg-light">\n <a class="navbar-brand" href="/">Cookie
+        </a>\n <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" \n
+            aria-controls="na
+vbarText" aria-expanded="False" aria-label="Toggle navigation">\n <span class="navbar-toggler-icon"></span>\n
+        </button>\
+        n <div class="collapse navbar-collapse" id="navbarText">\n <ul class="navbar-nav mr-auto">\n \n <l i
+                    class="nav-item">\n <a class="nav-link" href="">User1</a>\n </li>\n <li class="nav-item">\n
+                        <a class="nav-link" href="/logout">Logout</a>\n
+                    </li>\n\n <li class="nav-item">\n
+                        <a class="nav-link" href="/user/change/">Change your profile</a>\n
+                    </li>\n\n \n </ul>\n </div>\n <form class="form-inline" action="/search/" method="get">\n <input
+                style="width: 400px;" class="form-control mr-sm-2
+" type="text" \n placeholder="Search for movies, actors and directors" aria-label="Search" name="q">\n <input typ
+                e="hidden" name="csrfmiddlewaretoken"
+                value="Ax238piSZ7Bbv7m4nq0Kz2pldjOUVFVLAxeJVxUbTN8f2h09nEaxghywV4VAsGWt">\n <button c
+                lass="btn btn-primary" type="submit">Search</button>\n <!-- <button class="btn btn-outline-success my-2 my-sm-0" type="subm
+it">Search</button> -->\n </form>\n</nav>\n\n \n<div class="container py-5">\n <h2>Your review of the movie:\n <a
+                href="/movies/fight-club/" class="font-italic">"Fight Club"</a>\n </h2>\n \n <div
+            class="container py-5">\n <form action="/movies/25/reviews/detail/" method="post">\n <input type="hidden"
+                    name="csrfmiddlewaretoken" value="Ax238piSZ7B
+bv7m4nq0Kz2pldjOUVFVLAxeJVxUbTN8f2h09nEaxghywV4VAsGWt">\n \n\n<div id="div_id_content" class="form-group"> <label for="
+id_content" class=" requiredField">\n Content<span class="asteriskField">*</span> </label>
+                    <div> <textarea name="co
+ntent" cols="40" rows="10" class="textarea form-control is-invalid" required id="id_content">\nToo short</textarea>
+                        <p id="error_1
+_id_content" class="invalid-feedback"><strong>Your review is too short.</strong></p>
+                    </div>
+                </div>\n\n <button class="b
+tn btn-primary" type="submit">Update review</button>\n </form>\n </div>\n <form action="/movies/25/reviews/delete/" m
+            ethod="post">\n <input type="hidden" name="csrfmiddlewaretoken" value="Ax238piSZ7Bbv7m4nq0Kz2pldjOUVFVLAxeJVxUbTN8f2h09nEax
+ghywV4VAsGWt">\n <button class="btn btn-danger">Delete your review</button>\n </form>\n <div class="container py-5">\
+            n \n <p class="text-info">You have not rated the movie </p>\n <p>Visit about page of the movie to rate the
+                mo
+                vie:\n <a href="/movies/fight-club/">Fight Club</a>\n </p>\n \n </div>\n</div>\n\n\n
+    <script src="h
+ttps://code.jquery.com/jquery-3.5.1.slim.min.js" \n integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew
++OrCXaRkfj" \n crossorigin="anonymous"></script>\n
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/boot
+strap.bundle.min.js" \n integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" \n crossor
+        igin="anonymous"></script>\n
+</body>\n\n
+
+</html>

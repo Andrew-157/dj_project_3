@@ -7,6 +7,7 @@ from django.urls import reverse
 
 
 from movies.models import Movie, Director, Rating, Actor, Review
+from movies.forms import RateMovieForm, ReviewMovieForm
 from users.models import CustomUser
 from taggit.models import Tag, TaggedItem
 
@@ -392,6 +393,14 @@ class RateMovieViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(str(messages[0]),
                          'Please, authenticate to rate a movie')
+        response = self.client.post(reverse('movies:rate-movie',
+                                            kwargs={'pk': movie.id}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertRedirects(response, reverse('movies:movie-detail',
+                                               kwargs={'slug': movie.slug}))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(str(messages[0]),
+                         'Please, authenticate to rate a movie')
 
     def test_view_uses_correct_template_if_logged_in_without_rating(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -412,6 +421,7 @@ class RateMovieViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('movie' in response.context)
         self.assertTrue('form' in response.context)
+        self.assertTrue(isinstance(response.context['form'], RateMovieForm))
 
     def test_correct_response_for_nonexistent_movie(self):
         response = self.client.get(reverse('movies:rate-movie',
@@ -427,6 +437,8 @@ class RateMovieViewTest(TestCase):
             data={'rating': -1})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/rate_movie.html')
+        error_message = b'Select a valid choice. -1 is not one of the available choices.'
+        self.assertTrue(error_message in response.content)
 
     def test_logged_user_rates_movie_with_value_bigger_than_ten(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -437,6 +449,8 @@ class RateMovieViewTest(TestCase):
             data={'rating': 11})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/rate_movie.html')
+        error_message = b'Select a valid choice. 11 is not one of the available choices.'
+        self.assertTrue(error_message in response.content)
 
     def test_logged_user_rates_movie_with_empty_data(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -447,6 +461,10 @@ class RateMovieViewTest(TestCase):
             data={})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/rate_movie.html')
+        error_message = 'This field is required.'
+        self.assertTrue(error_message.encode() in response.content)
+        decoded_content: str = response.content.decode()
+        self.assertEqual(decoded_content.count(error_message), 1)
 
     def test_logged_user_rates_movie_with_no_data(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -457,6 +475,9 @@ class RateMovieViewTest(TestCase):
             data=None)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/rate_movie.html')
+        error_message = b'This field is required.'
+        self.assertTrue(error_message in response.content)
+        self.assertEqual(response.content.count(error_message), 1)
 
     def test_correct_response_if_movie_successfully_rated_by_logged_in_user(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -528,6 +549,7 @@ class UpdateRatingViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('movie' in response.context)
         self.assertTrue('form' in response.context)
+        self.assertTrue(isinstance(response.context['form'], RateMovieForm))
 
     def test_correct_template_used_for_logged_user_with_rating(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -566,6 +588,8 @@ class UpdateRatingViewTest(TestCase):
                                     data={'rating': -1})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/update_rating.html')
+        error_message = b'Select a valid choice. -1 is not one of the available choices.'
+        self.assertTrue(error_message in response.content)
 
     def test_logged_user_updates_rating_with_value_bigger_than_ten(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -576,6 +600,8 @@ class UpdateRatingViewTest(TestCase):
                                     data={'rating': 11})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/update_rating.html')
+        error_message = b'Select a valid choice. 11 is not one of the available choices.'
+        self.assertTrue(error_message in response.content)
 
     def test_logged_user_updates_rating_with_empty_data(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -586,6 +612,9 @@ class UpdateRatingViewTest(TestCase):
                                     data={})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/update_rating.html')
+        error_message = b'This field is required.'
+        self.assertTrue(error_message in response.content)
+        self.assertEqual(response.content.count(error_message), 1)
 
     def test_logged_user_updates_rating_with_no_data(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -596,6 +625,9 @@ class UpdateRatingViewTest(TestCase):
                                     data=None)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/update_rating.html')
+        error_message = b'This field is required.'
+        self.assertTrue(error_message in response.content)
+        self.assertEqual(response.content.count(error_message), 1)
 
     def test_response_if_logged_user_successfully_updated_rating(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -651,8 +683,8 @@ class DeleteRatingViewTest(TestCase):
                                        rating=8)
 
     def test_redirect_for_not_logged_user(self):
-        response = self.client.get(reverse('movies:rate-movie-delete',
-                                           kwargs={'pk': 99}))
+        response = self.client.post(reverse('movies:rate-movie-delete',
+                                            kwargs={'pk': 99}))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
@@ -804,6 +836,14 @@ class ReviewMovieViewTest(TestCase):
                                                kwargs={'pk': movie.id}))
         self.assertEqual(
             str(messages[0]), 'Please, authenticate to publish your review on the movie')
+        response = self.client.post(reverse('movies:review-movie',
+                                            kwargs={'pk': movie.id}))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('movies:review-list',
+                                               kwargs={'pk': movie.id}))
+        self.assertEqual(
+            str(messages[0]), 'Please, authenticate to publish your review on the movie')
 
     def test_redirect_for_logged_user_with_existing_review(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -836,6 +876,7 @@ class ReviewMovieViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/review_movie.html')
         self.assertTrue('form' in response.context)
+        self.assertTrue(isinstance(response.context['form'], ReviewMovieForm))
         self.assertTrue('movie' in response.context)
 
     def test_correct_objects_in_context_if_invalid_data_posted(self):
@@ -847,8 +888,8 @@ class ReviewMovieViewTest(TestCase):
                                     data={'content': 'Too short'})
         self.assertTrue(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/review_movie.html')
-        self.assertTrue('movie' in response.context)
-        self.assertTrue('form' in response.context)
+        error_message = b'Your review is too short.'
+        self.assertTrue(error_message in response.content)
 
     def test_logged_user_posts_review_with_empty_data(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -859,6 +900,9 @@ class ReviewMovieViewTest(TestCase):
                                             data={}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/review_movie.html')
+        error_message = b'This field is required.'
+        self.assertTrue(error_message in response.content)
+        self.assertEqual(response.content.count(error_message), 1)
 
     def test_logged_user_posts_review_with_empty_data(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -869,6 +913,9 @@ class ReviewMovieViewTest(TestCase):
                                     data=None)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/review_movie.html')
+        error_message = b'This field is required.'
+        self.assertTrue(error_message in response.content)
+        self.assertEqual(response.content.count(error_message), 1)
 
     def test_response_if_logged_user_posted_valid_data(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -947,6 +994,10 @@ class ReviewDetailViewTest(TestCase):
             'movies:review-detail', kwargs={'pk': 99}))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
+        response = self.client.post(reverse(
+            'movies:review-detail', kwargs={'pk': 99}))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/become_user/'))
 
     def test_redirect_for_logged_user_without_review(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -970,6 +1021,7 @@ class ReviewDetailViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('movie' in response.context)
         self.assertTrue('form' in response.context)
+        self.assertTrue(isinstance(response.context['form'], ReviewMovieForm))
         self.assertTrue('review' in response.context)
         self.assertFalse(response.context['rating'])
 
@@ -991,6 +1043,7 @@ class ReviewDetailViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue('movie' in response.context)
         self.assertTrue('form' in response.context)
+        self.assertTrue(isinstance(response.context['form'], ReviewMovieForm))
         self.assertTrue('review' in response.context)
         self.assertTrue(response.context['rating'])
 
@@ -1003,8 +1056,8 @@ class ReviewDetailViewTest(TestCase):
                                     data={'content': 'Too short'})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/review_detail.html')
-        self.assertTrue('movie' in response.context)
-        self.assertTrue('form' in response.context)
+        error_message = b'Your review is too short.'
+        self.assertTrue(error_message in response.content)
 
     def test_logged_user_posts_review_with_empty_data(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -1015,6 +1068,9 @@ class ReviewDetailViewTest(TestCase):
                                     data={})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/review_detail.html')
+        error_message = b'This field is required.'
+        self.assertTrue(error_message in response.content)
+        self.assertEqual(response.content.count(error_message), 1)
 
     def test_logged_user_posts_review_with_no_data(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -1025,6 +1081,9 @@ class ReviewDetailViewTest(TestCase):
                                     data=None)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/review_detail.html')
+        error_message = b'This field is required.'
+        self.assertTrue(error_message in response.content)
+        self.assertEqual(response.content.count(error_message), 1)
 
     def test_correct_response_if_post_valid_data(self):
         movie = Movie.objects.get(title='Fight Club')
@@ -1081,8 +1140,8 @@ class DeleteReviewViewTest(TestCase):
         )
 
     def test_redirect_for_not_logged_user(self):
-        response = self.client.get(reverse('movies:review-delete',
-                                           kwargs={'pk': 99}))
+        response = self.client.post(reverse('movies:review-delete',
+                                            kwargs={'pk': 99}))
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.startswith('/become_user/'))
 
